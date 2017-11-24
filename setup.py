@@ -12,7 +12,7 @@ setup(
     author='Max Linke',
     version='1.0dev',
     license='GPLv3',
-    install_requires=['numpy', 'numba', 'MDAnalysis', 'statsmodels'],
+    install_requires=['numpy', 'numba', 'MDAnalysis', 'statsmodels', 'joblib', 'scipy'],
     packages=find_packages(),
     include_dirs=[numpy_include],
     ext_modules=cythonize('pydiffusion/quaternionsimulation.pyx')
