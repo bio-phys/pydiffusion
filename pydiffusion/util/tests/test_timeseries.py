@@ -25,7 +25,7 @@ import pytest
 from numpy.testing import (assert_array_almost_equal, assert_array_equal,
                            assert_almost_equal)
 
-from hummer.util import timeseries
+from pydiffusion.util import timeseries
 
 
 @pytest.fixture

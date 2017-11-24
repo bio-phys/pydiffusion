@@ -19,7 +19,7 @@
 # along with pydiffusion.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import, division
 
-from hummer.util import random
+from pydiffusion.util import random
 
 import numpy as np
 from numpy.testing import assert_almost_equal

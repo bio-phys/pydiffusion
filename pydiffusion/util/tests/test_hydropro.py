@@ -23,7 +23,7 @@ from os.path import join as pjoin
 
 from numpy.testing import assert_array_almost_equal, assert_equal
 
-from hummer.util import hydropro
+from pydiffusion.util import hydropro
 
 
 def test_config():

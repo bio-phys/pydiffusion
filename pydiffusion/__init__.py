@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from . import translation
 from . import rotation
-from . import quaternionsimulations
+from . import quaternionsimulation
 from . import util
 
-__all__ = ['translation', 'rotation', 'quaternionsimulations', 'util']
+__all__ = ['translation', 'rotation', 'quaternionsimulation', 'util']
