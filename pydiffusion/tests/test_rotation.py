@@ -33,7 +33,7 @@ from numpy.testing import (assert_equal, assert_array_equal,
 
 from scipy.special import legendre
 
-import hummer.diffusion.rotation as rot
+import pydiffusion.rotation as rot
 
 DATA_DIR = pjoin(dirname(__file__), 'data')
 
@@ -175,14 +175,14 @@ def test_RotationMatrix(curve):
     rm = rot.RotationMatrix(curve.atoms, align_first_to_ref=False).run()
     for i, R in enumerate(rm.R):
         refR = np.linalg.matrix_power(curve.rot.T, i)
-        assert_array_almost_equal(R, refR, decimal=3)
+        assert_array_almost_equal(R, refR.T, decimal=3)
 
     u2 = mda.Universe(curve.atoms.universe.filename,
                       curve.atoms.universe.trajectory.filename)
 
     for R, ts in zip(rm.R, curve.atoms.universe.trajectory):
         curve.atoms.translate(-curve.atoms.center_of_geometry())
-        curve.atoms.rotate(R.T)
+        curve.atoms.rotate(R)
         est_R = rot.rotation_matrix(curve.atoms, u2.atoms)
         assert_array_almost_equal(est_R, np.eye(3))
 
@@ -194,7 +194,7 @@ def test_RotationMatrix_with_weights(curve):
     rm = rot.RotationMatrix(
         curve.atoms, weights=weights, align_first_to_ref=False).run()
     for i, R in enumerate(rm.R):
-        refR = np.linalg.matrix_power(curve.rot.T, i)
+        refR = np.linalg.matrix_power(curve.rot, i)
         assert_array_almost_equal(R, refR, decimal=3)
 
 
@@ -204,11 +204,11 @@ def test_RotationMatrix_with_alignment(curve, curve_rotated):
     rm = rot.RotationMatrix(
         curve.atoms, start=2, align_first_to_ref=True).run()
     # this checks for sure if my rotation to first is correct
-    assert_array_almost_equal(rm._first_rot.T, rm_ref.R[2], decimal=4)
+    assert_array_almost_equal(rm._first_rot.T, rm_ref.R[2].T, decimal=4)
 
     # check if we can reconstruct the rotations from a different starting point
-    for R, R_ref in zip(rm.R, rm_ref.R[rm.start:]):
-        assert_array_almost_equal(np.dot(rm._first_rot.T, R), R_ref)
+    for i, (R, R_ref) in enumerate(zip(rm.R, rm_ref.R[rm.start:])):
+        assert_array_almost_equal(np.dot(rm._first_rot, R), R_ref, decimal=4)
 
     # test more specific
     rm = rot.RotationMatrix(
@@ -220,7 +220,7 @@ def test_RotationMatrix_with_alignment(curve, curve_rotated):
     for R, ts in zip(rm.R, curve.atoms.universe.trajectory):
         curve.atoms.translate(-curve.atoms.center_of_geometry())
         curve.atoms.rotate(R_first.T)
-        curve.atoms.rotate(R.T)
+        curve.atoms.rotate(R)
         est_R = rot.rotation_matrix(curve.atoms, curve_rotated.atoms)
         assert_array_almost_equal(est_R, np.eye(3))
 
@@ -229,7 +229,7 @@ def test_RotationMatrix_with_reference(curve, curve_rotated):
     rm = rot.RotationMatrix(
         curve.atoms, ref=curve_rotated.atoms, align_first_to_ref=False).run()
     curve.atoms.universe.trajectory[0]
-    r = rot.rotation_matrix(curve.atoms, curve_rotated.atoms)
+    r = rot.rotation_matrix(curve_rotated.atoms, curve.atoms)
     assert_array_almost_equal(rm.R[0], r)
 
 
@@ -250,12 +250,6 @@ def test_cos_t():
     cost = rot.cos_t(R, [1, 0, 0])
     assert_equal(cost.shape, (10, ))
     assert_almost_equal(cost, np.cos(np.arange(10) * 5))
-
-    body_cost = rot.cos_t_body_vecs(R)
-    assert_equal(len(body_cost), 3)
-    assert_almost_equal(body_cost[0], np.cos(np.arange(10) * 5))
-    assert_almost_equal(body_cost[1], np.cos(np.arange(10) * 5))
-    assert_almost_equal(body_cost[2], np.ones(10))
 
 
 @pytest.mark.filterwarnings('ignore:invalid value')
@@ -418,57 +412,6 @@ def test_inf_generator(start, stop, step):
     assert next(gen) == stop
 
 
-def test_rotation_angle():
-    n = 100
-    for i in range(n):
-        vec = np.random.uniform(0, 1, size=3)
-        vec /= np.linalg.norm(vec)
-
-        phi = np.random.uniform(0, np.pi)
-        phi_2 = np.random.uniform(0, np.pi)
-        H = mda.lib.transformations.rotation_matrix(phi, vec)[:3, :3]
-        CHI = mda.lib.transformations.rotation_matrix(phi + phi_2, vec)[:3, :3]
-
-        assert_almost_equal(1, np.linalg.norm(vec))
-        assert_almost_equal(phi_2, rot.rotation_angle(H, CHI))
-
-
-def test_rotation_min_angle_no_cylinder():
-    n = 5
-    for i in range(n):
-        vec = np.random.uniform(0, 1, size=3)
-        vec /= np.linalg.norm(vec)
-
-        phi = np.random.uniform(0, np.pi / 2)
-        phi_2 = np.random.uniform(0, np.pi / 2)
-        H = mda.lib.transformations.rotation_matrix(phi, vec)[:3, :3]
-        CHI = mda.lib.transformations.rotation_matrix(phi + phi_2, vec)[:3, :3]
-
-        assert_almost_equal(1, np.linalg.norm(vec))
-        assert_almost_equal(phi_2, rot.min_angle(H, CHI, cylinder=False))
-
-
-def test_rotation_min_angle_cylinder_full():
-    vec = np.random.uniform(0, 1, size=3)
-    vec /= np.linalg.norm(vec)
-
-    phi = np.random.uniform(0, np.pi / 2)
-    phi_2 = np.random.uniform(0, np.pi / 2)
-    H = mda.lib.transformations.rotation_matrix(phi, vec)[:3, :3]
-    CHI = mda.lib.transformations.rotation_matrix(phi + phi_2, vec)[:3, :3]
-
-    # switch axes
-    CHI_CY = CHI.copy()
-    CHI_CY[1] = -CHI[2].copy()
-    CHI_CY[2] = CHI[1].copy()
-
-    angle, R = rot.min_angle(H, CHI_CY, full=True)
-
-    assert_almost_equal(1, np.linalg.norm(vec))
-    assert_almost_equal(phi_2, angle)
-    assert_almost_equal(CHI, R)
-
-
 @pytest.mark.parametrize('D', [np.arange(1, 4), np.ones(3)])
 def test_chi2(D):
     D = D * 1e-3
@@ -484,13 +427,14 @@ def test_chi2(D):
 def test_laplace_fit(D):
     D = D * 1e-3
     dt = 1
-    t = np.arange(100) * dt
+    time = np.arange(100) * dt
     tensor = rot.RotationTensor(D, np.eye(3))
-    moment2 = rot.moment_2(t, tensor)
-    result = rot.fit_laplace(moment2, dt, s=1 / 10)
+    moment2 = rot.moment_2(time, tensor)
+    result = rot.fit_laplace(moment2, time, s=1 / 10)
     assert_almost_equal(result.D, D, decimal=4)
 
 
+@pytest.mark.filterwarnings('ignore::RuntimeWarning')
 @pytest.mark.parametrize('D', [np.arange(3, 0, -1), np.ones(3)])
 def test_anneal(D):
     D = D * 1e-3
@@ -498,5 +442,5 @@ def test_anneal(D):
     t = np.arange(100) * dt
     tensor = rot.RotationTensor(D, np.eye(3))
     moment2 = rot.moment_2(t, tensor)
-    result = rot.anneal(moment2, dt)
+    result = rot.anneal(moment2, t, D=D * 2, eps=0.01)[0]
     assert_almost_equal(result.D, D, decimal=4)
