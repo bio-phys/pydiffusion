@@ -139,6 +139,7 @@ def rcf(t, D, v_body, rank=2):
     t = np.asarray(t)
     D = np.asarray(D)
     v_body = np.asarray(v_body)
+    v_body /= np.linalg.norm(v_body)
 
     if rank == 1:
         a = v_body**2
@@ -155,19 +156,61 @@ def rcf(t, D, v_body, rank=2):
             "only 1. and 2. order correlation are available")
 
 
-def correlation_time(D, v_body):
-    """Calculate analytical rotational correlation time
+def tau_1(D, v_body='average'):
+    """Calculate analytical rotational correlation time of P_1
 
     Parameters
     ----------
     D : array_like (3, )
         Diffusion tensor
-    v_body : array_like (3, )
-        body fixed reference vector
+    v_body : array_like (3, ), optional
+        body fixed reference vector. If its 'average' use equation in Linke et al.
 
     Returns
     -------
     correlation time : float
+
+
+    See Also
+    --------
+    tau_2
+
+    References
+    ----------
+    Dlugosz et al. 2014
+
+    Max Linke, Jürgen Köfinger, Gerhard Hummer (2017) in preparation
+    """
+    if isinstance(v_body, string_types) and v_body == 'average':
+        el1 = 1 / (3 * D[1] * (1 + D[2] / D[1]))
+        el2 = 1 / (3 * D[0] * (1 + D[2] / D[0]))
+        el3 = 1 / (3 * D[0] * (1 + D[1] / D[0]))
+        return el1 + el2 + el3
+    else:
+        v_body = np.asarray(v_body, dtype=float)
+        v_body /= np.linalg.norm(v_body)
+        a = v_body**2
+        taus = 1. / np.array([D[1] + D[2], D[0] + D[2], D[0] + D[1]])
+        return np.sum(a * taus)
+
+
+def tau_2(D, v_body='average'):
+    """Calculate analytical rotational correlation time of P_2
+
+    Parameters
+    ----------
+    D : array_like (3, )
+        Diffusion tensor
+    v_body : array_like (3, ), optional
+        body fixed reference vector. If its 'average' use equation in Linke et al.
+
+    Returns
+    -------
+    correlation time : float
+
+    See Also
+    --------
+    tau_1
 
     References
     ----------
@@ -176,44 +219,48 @@ def correlation_time(D, v_body):
     models using the SOLPRO computer program. European Biophysics Journal, 28,
     119–132. https://doi.org/10.1007/s002490050191
 
+    Max Linke, Jürgen Finger, Gerhard Hummer (2017) in preparation
     """
-    # catch isotropic case
-    if D[0] == D[1] == D[2]:
-        return 1. / (np.sum(D) * 2)
+    # catch isotropic case here because equation doesn't divide by 0 in this case
+    if (isinstance(v_body, string_types) and v_body == 'average') or D[0] == D[1] == D[2]:
+        el1 = 1 / (4 * D[0] + D[1] + D[2])
+        el2 = 1 / (D[0] + 4 * D[1] + D[2])
+        el3 = 1 / (D[0] + D[1] + 4 * D[2])
+        el4 = 1 / (np.sum(D) - delta(D))
+        return 1 / 5 * (el1 + el2 + el3 + el4)
     else:
+        v_body = np.asarray(v_body, dtype=float)
+        v_body /= np.linalg.norm(v_body)
         return np.sum(_aa(v_body, D) * _taus(D))
 
 
-def harm_mean_cor_time(D):
+def hmc_time(D):
+    """
+    harmonic mean relaxation time
+
+    See Also
+    --------
+    tau_1
+    tau_2
+
+    References
+    ----------
+    Garcia De La Torre, J., Harding, S. E., & Carrasco, B. (1999). Calculation
+    of NMR relaxation, covolume, and scattering-related properties of bead
+    models using the SOLPRO computer program. European Biophysics Journal, 28,
+    119–132. https://doi.org/10.1007/s002490050191
+    """
     return 1 / (2 * D.sum())
-
-
-def tau_1(D):
-    el1 = 1 / (3 * D[1] * (1 + D[2] / D[1]))
-    el2 = 1 / (3 * D[0] * (1 + D[2] / D[0]))
-    el3 = 1 / (3 * D[0] * (1 + D[1] / D[0]))
-    return el1 + el2 + el3
-
-
-def tau_2(D):
-    el1 = 1 / (4 * D[0] + D[1] + D[2])
-    el2 = 1 / (D[0] + 4 * D[1] + D[2])
-    el3 = 1 / (D[0] + D[1] + 4 * D[2])
-    el4 = 1 / (np.sum(D) - delta(D))
-    return 1 / 5 * (el1 + el2 + el3 + el4)
 
 
 def p_l(x, l=2):
     r"""
     Calculate the l-th legendre polynominal of a timeseries
 
-    .. math:
-        P_l(cos(\phi_t)) = P_l(<\vec{x_0}, \vec{x_t}>)
-
     Parameters
     ----------
     x : array_like
-        scalar product of x_0 and x_t
+        values to evaluate at
     l : int, optional
         give the order of the legendre polynominal
 
@@ -221,8 +268,32 @@ def p_l(x, l=2):
     -------
     P : ndarray
         Legendre polynominal for timeseries
+
+    See Also
+    --------
+    cos_t
     """
     return legendre(l)(x)
+
+
+def cos_t(R, x0):
+    r"""
+    calculate Cosine \Theta for any given vector and rotation matrices
+
+    Parameters
+    ----------
+    R : ndarray
+        3D array of shape (T, 3, 3) containing T rotation matrices.
+    x : array_like
+        1D array of unit vector in coordinate system of interest
+
+    Returns
+    -------
+    cos_t: ndarray
+        1D-Array with cos(\theta_t) for all t
+    """
+    x = np.dot(x0, R)
+    return np.sum(x0 * x, axis=1)
 
 
 def rotation_matrix(mobile, ref, weights=None):
@@ -317,43 +388,23 @@ class RotationMatrix(AnalysisBase):
         self.frames = np.asarray(self.frames)
 
 
-def cos_t(R, x0):
-    r"""
-    calculate Cosine \Theta for any given vector and rotation matrices
-
-    Parameters
-    ----------
-    R : ndarray
-        3D array of shape (T, 3, 3) containing T rotation matrices.
-    x : array_like
-        1D array of unit vector in coordinate system of interest
-
-    Returns
-    -------
-    cos_t: ndarray
-        1D-Array with cos(\theta_t) for all t
-    """
-    x = np.dot(x0, R)
-    return np.sum(x0 * x, axis=1)
-
-
-def _is_right_handed(M):
+def is_right_handed(M):
     """Is matrix right handed"""
     det = np.linalg.det(M)
     return np.allclose(det / np.abs(det), 1)
 
 
-def _make_right_handed(M):
+def make_right_handed(M):
     """
     excepts vectors in M are column vectors
     """
-    if _is_right_handed(M):
+    if is_right_handed(M):
         return M
     # don't modify original
     M = M.copy()
     for i in range(3):
         M[:, i] *= -1
-        if _is_right_handed(M):
+        if is_right_handed(M):
             return M
     raise RuntimeError("Couldn't find simple conversion to right-hand system")
 
@@ -376,21 +427,20 @@ def pcs(D):
         diagional elements of D in PCS
     toPCS : ndarray (3, 3)
         matrix to transform coordinates into the PCS
-    toLab : ndarray (3, 3)
-        matrix to transform from PCS to orignal coordinate system
 
     """
     Dr, V = np.linalg.eig(D)
     idx_sort = np.argsort(Dr)[::-1]
     Dr = Dr[idx_sort]
-    V = _make_right_handed(V[:, idx_sort])
-    toLab = V.T  # is the same here due to being right-handed as np.linalg.inv(toPCS)
-    return Dr, V, toLab
+    V = make_right_handed(V[:, idx_sort])
+    return Dr, V
 
 
 def rotations_at_t(R, t, step=None):
-    """Given rotation matrices from a simulation with T steps calculate
-    the rotation for all pairs ``t`` steps apart compared at time 0.
+    """Given rotation matrices from a simulation with T steps calculate the
+    rotation for all pairs ``t`` steps apart compared at time 0. This uses the
+    common 'window' technique to emulate independent runs from a single
+    trajectory.
 
 
     Parameters
@@ -406,6 +456,7 @@ def rotations_at_t(R, t, step=None):
     -------
     rots : ndarray (T-t, 3, 3)
         rotations takes in R at a t step interval
+
     """
     if t < 0 or not isinstance(t, (int, np.uint)):
         raise ValueError("t must be positive integer")
@@ -428,7 +479,7 @@ def rotations_at_t(R, t, step=None):
         return np.einsum(einsum, R[t::step], R[:-t:step])
 
 
-def quaternion_covariance(R, t, step=None):
+def _quaternion_covariance(R, t, step=None):
     """calculate rotational covariance in quaternion space for a
     trajectory of rotations or a single rotation
 
@@ -475,7 +526,7 @@ def quaternion_covariance(R, t, step=None):
     return u / 4.0
 
 
-def rotation_correlations(R, t, step=None, n_jobs=1, **kwargs):
+def quaternion_covariance(R, t, step=None, n_jobs=1, **kwargs):
     """calculate rotation covariance in quaternion space  upto step t
 
     Parameters
@@ -499,10 +550,10 @@ def rotation_correlations(R, t, step=None, n_jobs=1, **kwargs):
     """
     # split this to avoid joblib warnings
     if n_jobs == 1:
-        u = [quaternion_covariance(R, i, step) for i in range(t)]
+        u = [_quaternion_covariance(R, i, step) for i in range(t)]
     else:
         u = Parallel(
-            n_jobs=n_jobs, **kwargs)(delayed(quaternion_covariance)(R, i, step)
+            n_jobs=n_jobs, **kwargs)(delayed(_quaternion_covariance)(R, i, step)
                                      for i in range(t))
     return np.asarray(u)
 
@@ -806,7 +857,7 @@ def fit_laplace(corr, time, s):
     D[2] = +1 / (val[0] + val[1]) - 1 / (val[1] + val[2]) - 1 / (
         val[2] + val[0]) - s / 2.
 
-    R = _make_right_handed(vec)
+    R = make_right_handed(vec)
     return RotationTensor(D, R.T)
 
 
@@ -948,7 +999,7 @@ def anneal(obs,
             dR = random.rotation(
                 angle=np.random.uniform(0, max_angle),
                 random_state=random_state)
-            R = _make_right_handed(np.dot(model.R, dR).T).T
+            R = make_right_handed(np.dot(model.R, dR).T).T
             new_model = RotationTensor(model.D, R)
             val = chi2(obs, new_model, time)
 

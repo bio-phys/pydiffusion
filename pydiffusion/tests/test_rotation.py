@@ -84,10 +84,10 @@ def test_p_l():
 def test_correlation_time():
     D = 1, 0, 1
     v = 1, 0, 0
-    assert_almost_equal(rot.correlation_time(D, v), 0.416666666666)
+    assert_almost_equal(rot.tau_2(D, v), 0.416666666666)
 
     D = 1, 1, 1
-    assert_almost_equal(rot.correlation_time(D, v), 0.166666666666666)
+    assert_almost_equal(rot.tau_2(D, v), 0.166666666666666)
 
 
 def test_rcf_rank_1():
@@ -253,23 +253,22 @@ def test_cos_t():
 def test_make_right_handed():
     M = np.eye(3)
     M[:, 0] *= -1
-    M = rot._make_right_handed(M)
+    M = rot.make_right_handed(M)
     assert_array_equal(np.eye(3), M)
 
     with pytest.raises(RuntimeError):
         M = np.eye(3)
         M[:, 0] = M[:, 2]
-        rot._make_right_handed(M)
+        rot.make_right_handed(M)
 
 
 def test_pcs():
     D = [[24660000., -1917000., 4468000.], [-1917000., 21630000., -1584000.],
          [4468000., -1584000., 25030000.]]
-    Dpcs, toPCS, toLab = rot.pcs(D)
+    Dpcs, toPCS = rot.pcs(D)
     # more checks don't make sense because I would only check that np.linalg.eig
     # works correct, that is something I want to assume already
     assert len(Dpcs) == 3
-    assert_array_almost_equal(np.linalg.inv(toPCS), toLab)
 
 
 @pytest.fixture
@@ -337,13 +336,13 @@ def test_rotations_covariance(rotations):
     u += np.triu(u, 1).T
     u /= 4
 
-    cov = rot.quaternion_covariance(rotations, t)
+    cov = rot._quaternion_covariance(rotations, t)
     assert_array_almost_equal(u, cov)
 
 
 @pytest.mark.parametrize('n_jobs', [1, 2])
 def test_rotation_correlations(rotations, n_jobs):
-    u = rot.rotation_correlations(rotations, 20, n_jobs=n_jobs)
+    u = rot.quaternion_covariance(rotations, 20, n_jobs=n_jobs)
     assert u.shape == (20, 4, 4)
 
 
