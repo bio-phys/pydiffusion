@@ -20,7 +20,7 @@
 import numpy as np
 from MDAnalysis.lib import transformations
 
-from numpy.testing import assert_array_equal, assert_array_almost_equal
+from numpy.testing import assert_equal, assert_almost_equal
 import pytest
 
 from pydiffusion import quaternionsimulation as rotation
@@ -56,7 +56,7 @@ def test_norm(zero_quat):
 
 def test_conjugate():
     q = [2, 1, 1, 1]
-    assert_array_equal([2, -1, -1, -1], rotation.conjugate(q))
+    assert_equal([2, -1, -1, -1], rotation.conjugate(q))
 
 
 @pytest.mark.parametrize('axis, angle', (([1, 1, 1], 90), ([0, 1, 1], 45)))
@@ -65,34 +65,33 @@ def test_quat(axis, angle):
     axis = np.array(axis)
     assert 1 == rotation.norm(q)
     assert np.cos(np.radians(.5 * angle)) == q[0]
-    assert_array_almost_equal(
+    assert_almost_equal(
         np.sin(np.radians(.5 * angle)) * axis / np.linalg.norm(axis), q[1:])
-    assert_array_almost_equal(
+    assert_almost_equal(
         transformations.quaternion_about_axis(np.radians(angle), axis), q)
 
 
 def test_mul(zero_quat, right_angle):
-    assert_array_almost_equal(right_angle, rotation.mul(zero_quat,
-                                                        right_angle))
-    assert_array_almost_equal(right_angle, rotation.mul(right_angle,
-                                                        zero_quat))
-    assert_array_almost_equal(
+    assert_almost_equal(right_angle, rotation.mul(zero_quat, right_angle))
+    assert_almost_equal(right_angle, rotation.mul(right_angle, zero_quat))
+    assert_almost_equal(
         transformations.quaternion_multiply(right_angle, right_angle),
         rotation.mul(right_angle, right_angle))
 
 
 def test_rotate_by(right_angle, zero_quat, vec, right_angle_mat):
-    assert_array_almost_equal(vec, rotation.rotate_by(zero_quat, vec))
-    assert_array_almost_equal(
+    assert_almost_equal(vec, rotation.rotate_by(zero_quat, vec))
+    assert_almost_equal(
         rotation.rotate_by(right_angle, vec),
         rotation.rotate_by(-right_angle, vec))
-    assert_array_almost_equal(
+    assert_almost_equal(
         np.dot(right_angle_mat.T, vec), rotation.rotate_by(right_angle, vec))
 
 
 def test_inverse(right_angle):
-    assert_array_almost_equal([1, 0, 0, 0], rotation.mul(
-        right_angle, rotation.inv(right_angle)))
+    assert_almost_equal([1, 0, 0, 0],
+                        rotation.mul(right_angle, rotation.inv(right_angle)))
+
 
 ###################
 # Test Simulation #
@@ -122,7 +121,7 @@ def test_run_return_size(D, niter):
 def test_run_reproducibility(D, seed):
     r1 = rotation.run(D=D, niter=10, dt=1e-9, random_state=seed)
     r2 = rotation.run(D=D, niter=10, dt=1e-9, random_state=seed)
-    assert_array_equal(r1, r2)
+    assert_equal(r1, r2)
 
     r1 = rotation.run(D=D, niter=10, dt=1e-9)
     r2 = rotation.run(D=D, niter=10, dt=1e-9)
@@ -131,6 +130,6 @@ def test_run_reproducibility(D, seed):
 
 def test_run(D):
     r1 = rotation.run(D=D, niter=10, dt=1e-9)
-    assert_array_almost_equal(r1[0], [1, 0, 0, 0])
+    assert_almost_equal(r1[0], [1, 0, 0, 0])
     for r in r1[1:]:
         assert not np.allclose(r1[0], r)

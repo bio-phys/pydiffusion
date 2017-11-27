@@ -22,7 +22,7 @@ import numpy as np
 from os.path import join as pjoin
 
 from MDAnalysisTests.datafiles import PSF, DCD
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_equal
 import pytest
 
 from hummer import util
@@ -46,13 +46,12 @@ class TestSelectAtomsWrapper:
     def test_non_atomgroup_input(self, ag, sel):
         util.mda.select_atoms_wrapper(ag, sel)
 
-    @pytest.mark.skip("broken from mda site?")
     def test_atomgroup(self, ag, u):
         sel = util.mda.select_atoms_wrapper(ag, ag)
         assert sel == ag
         # don't touch selection if select_atoms can't be called!
         sel = util.mda.select_atoms_wrapper(ag, u.atoms)
-        assert sel != ag
+        assert_equal(sel.indices, ag.indices)
 
 
 class TestParseCommonSelection:
@@ -115,15 +114,15 @@ def ndx(tmpdir):
 def test_ndx_to_selections(ndx):
     indices = dict(util.mda.ndx_to_selections(ndx))
     assert len(indices) == 3
-    assert_array_equal(indices['Protein'], [1, 2, 3, 4])
-    assert_array_equal(indices['Membrane'], [5, 6, 7])
-    assert_array_equal(indices['Other'], [10, 12, 14])
+    assert_equal(indices['Protein'], [1, 2, 3, 4])
+    assert_equal(indices['Membrane'], [5, 6, 7])
+    assert_equal(indices['Other'], [10, 12, 14])
 
 
 def test_ndx_to_atomgroups(ndx, u):
     selections = util.mda.ndx_to_atomgroups(ndx, u)
 
     assert len(selections) == 3
-    assert_array_equal(selections['Protein'].ids, np.array([1, 2, 3, 4]) - 1)
-    assert_array_equal(selections['Membrane'].ids, np.array([5, 6, 7]) - 1)
-    assert_array_equal(selections['Other'].ids, np.array([10, 12, 14]) - 1)
+    assert_equal(selections['Protein'].ids, np.array([1, 2, 3, 4]) - 1)
+    assert_equal(selections['Membrane'].ids, np.array([5, 6, 7]) - 1)
+    assert_equal(selections['Other'].ids, np.array([10, 12, 14]) - 1)

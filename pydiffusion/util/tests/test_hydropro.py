@@ -22,7 +22,7 @@ from six.moves import zip
 from os.path import join as pjoin
 import pytest
 
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_almost_equal
 
 from pydiffusion.util import hydropro
 from pydiffusion.util.testing import data
@@ -86,10 +86,10 @@ def test_read_diffusion_tensor(data):
          [ 2.228E-02,-1.056E-03,-8.644E-03,-1.917E+06, 2.163E+07,-1.584E+06],
          [ 1.652E-02,-8.636E-03,-4.427E-03, 4.468E+06,-1.584E+06, 2.503E+07]])
     tensor = hydropro.read_diffusion_tensor(data['hydropro-res.txt'])
-    assert_array_almost_equal(res_tensor, tensor)
+    assert_almost_equal(res_tensor, tensor)
 
 
 def test_read_center_of_diffusion(data):
     res_cd = np.array([1.994E-07, 1.728E-07, 2.292E-07])
     cd = hydropro.read_center_of_diffusion(data['hydropro-res.txt'])
-    assert_array_almost_equal(res_cd, cd)
+    assert_almost_equal(res_cd, cd)

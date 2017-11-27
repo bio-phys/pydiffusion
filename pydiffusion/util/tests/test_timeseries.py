@@ -22,8 +22,7 @@ import pandas as pd
 from collections import namedtuple
 
 import pytest
-from numpy.testing import (assert_array_almost_equal, assert_array_equal,
-                           assert_almost_equal)
+from numpy.testing import assert_almost_equal, assert_equal
 
 from pydiffusion.util import timeseries
 
@@ -48,15 +47,15 @@ def test_norm(trigonometric):
 def test_demean(trigonometric):
     acf = timeseries.acf(trigonometric.sin + 10, 10, demean=False, norm=False)
     acf2 = timeseries.acf(trigonometric.sin, 10, norm=False)
-    assert_array_almost_equal(acf - 10**2, acf2)
+    assert_almost_equal(acf - 10**2, acf2)
 
 
 def test_for_pandas(trigonometric):
     acf = timeseries._acf(trigonometric.sin, 10, for_pandas=True)
     acf_normal = timeseries._acf(trigonometric.sin, 10)
     assert len(acf) == len(trigonometric.sin)
-    assert_array_equal(acf[10:], np.zeros(len(trigonometric.sin) - 10))
-    assert_array_equal(acf[:10], acf_normal)
+    assert_equal(acf[10:], np.zeros(len(trigonometric.sin) - 10))
+    assert_equal(acf[:10], acf_normal)
 
 
 def test_nlags(trigonometric):
@@ -73,7 +72,7 @@ def test_acf_1d(trigonometric, nlags):
 
     assert len(_acf) == nlags
     assert_almost_equal(_acf[0], 1)
-    assert_array_almost_equal(trigonometric.cos[:nlags], _acf, decimal=1)
+    assert_almost_equal(trigonometric.cos[:nlags], _acf, decimal=1)
 
 
 @pytest.mark.parametrize('nlags', [100, None])
@@ -87,9 +86,9 @@ def test_acf_2d(trigonometric, nlags):
 
     cos = np.vstack((trigonometric.cos[:nlags] for _ in range(5)))
 
-    assert_array_equal(_acf.shape, (5, nlags))
-    assert_array_almost_equal(_acf[:, 0], np.ones(5))
-    assert_array_almost_equal(cos, _acf, decimal=1)
+    assert_equal(_acf.shape, (5, nlags))
+    assert_almost_equal(_acf[:, 0], np.ones(5))
+    assert_almost_equal(cos, _acf, decimal=1)
 
 
 def test_acf_col_var(trigonometric):
@@ -99,9 +98,9 @@ def test_acf_col_var(trigonometric):
 
     cos = np.vstack((trigonometric.cos[:nlags] for _ in range(5)))
 
-    assert_array_equal(_acf.shape, (nlags, 5))
-    assert_array_almost_equal(_acf[0, :], np.ones(5))
-    assert_array_almost_equal(cos, _acf.T, decimal=1)
+    assert_equal(_acf.shape, (nlags, 5))
+    assert_almost_equal(_acf[0, :], np.ones(5))
+    assert_almost_equal(cos, _acf.T, decimal=1)
 
 
 @pytest.mark.parametrize('nlags', [100, None])
@@ -115,6 +114,6 @@ def test_acf_DataFrame(trigonometric, nlags):
 
     cos = np.vstack((trigonometric.cos[:nlags] for _ in range(5))).T
 
-    assert_array_equal(_acf.shape, (nlags, 5))
-    assert_array_almost_equal(_acf.iloc[0], np.ones(5))
-    assert_array_almost_equal(cos, _acf.values, decimal=1)
+    assert_equal(_acf.shape, (nlags, 5))
+    assert_almost_equal(_acf.iloc[0], np.ones(5))
+    assert_almost_equal(cos, _acf.values, decimal=1)

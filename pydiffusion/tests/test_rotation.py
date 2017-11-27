@@ -27,8 +27,7 @@ from collections import namedtuple
 from itertools import combinations_with_replacement
 
 import pytest
-from numpy.testing import (assert_equal, assert_array_equal,
-                           assert_array_almost_equal, assert_almost_equal)
+from numpy.testing import assert_equal, assert_almost_equal
 
 from scipy.special import legendre
 
@@ -77,8 +76,8 @@ def test__aa():
 
 def test_p_l():
     x = np.linspace(0, 10)
-    assert_array_equal(rot.p_l(x, l=2), legendre(2)(x))
-    assert_array_equal(rot.p_l(x, l=1), legendre(1)(x))
+    assert_equal(rot.p_l(x, l=2), legendre(2)(x))
+    assert_equal(rot.p_l(x, l=1), legendre(1)(x))
 
 
 def test_correlation_time():
@@ -99,7 +98,7 @@ def test_rcf_rank_1():
     for i, ax in enumerate(axes):
         rcf = rot.rcf(t, D, ax, rank=1)
         assert_equal(len(rcf), 1000)
-        assert_array_almost_equal(rcf, np.exp(-(D.sum() - D[i]) * t))
+        assert_almost_equal(rcf, np.exp(-(D.sum() - D[i]) * t))
 
 
 def test_rcf_rank_2():
@@ -115,7 +114,7 @@ def test_rcf_rank_2():
                     (2. / 3. * np.cosh(2 * delta * t) +
                      (D[i] - Dr) / delta * np.sinh(2 * delta * t)))
         assert_equal(len(rcf), 1000)
-        assert_array_almost_equal(rcf, theo_rcf)
+        assert_almost_equal(rcf, theo_rcf)
 
 
 def test_rcf_rank_bigger_2():
@@ -172,7 +171,7 @@ def test_RotationMatrix(curve):
     rm = rot.RotationMatrix(curve.atoms, align_first_to_ref=False).run()
     for i, R in enumerate(rm.R):
         refR = np.linalg.matrix_power(curve.rot.T, i)
-        assert_array_almost_equal(R, refR.T, decimal=3)
+        assert_almost_equal(R, refR.T, decimal=3)
 
     u2 = mda.Universe(curve.atoms.universe.filename,
                       curve.atoms.universe.trajectory.filename)
@@ -181,7 +180,7 @@ def test_RotationMatrix(curve):
         curve.atoms.translate(-curve.atoms.center_of_geometry())
         curve.atoms.rotate(R)
         est_R = rot.rotation_matrix(curve.atoms, u2.atoms)
-        assert_array_almost_equal(est_R, np.eye(3))
+        assert_almost_equal(est_R, np.eye(3))
 
 
 def test_RotationMatrix_with_weights(curve):
@@ -192,7 +191,7 @@ def test_RotationMatrix_with_weights(curve):
         curve.atoms, weights=weights, align_first_to_ref=False).run()
     for i, R in enumerate(rm.R):
         refR = np.linalg.matrix_power(curve.rot, i)
-        assert_array_almost_equal(R, refR, decimal=3)
+        assert_almost_equal(R, refR, decimal=3)
 
 
 def test_RotationMatrix_with_alignment(curve, curve_rotated):
@@ -201,25 +200,25 @@ def test_RotationMatrix_with_alignment(curve, curve_rotated):
     rm = rot.RotationMatrix(
         curve.atoms, start=2, align_first_to_ref=True).run()
     # this checks for sure if my rotation to first is correct
-    assert_array_almost_equal(rm._first_rot.T, rm_ref.R[2].T, decimal=4)
+    assert_almost_equal(rm._first_rot.T, rm_ref.R[2].T, decimal=4)
 
     # check if we can reconstruct the rotations from a different starting point
     for i, (R, R_ref) in enumerate(zip(rm.R, rm_ref.R[rm.start:])):
-        assert_array_almost_equal(np.dot(rm._first_rot, R), R_ref, decimal=4)
+        assert_almost_equal(np.dot(rm._first_rot, R), R_ref, decimal=4)
 
     # test more specific
     rm = rot.RotationMatrix(
         curve.atoms, ref=curve_rotated.atoms, align_first_to_ref=True).run()
-    assert_array_almost_equal(rm.R[0], np.eye(3))
+    assert_almost_equal(rm.R[0], np.eye(3))
     R_first = rot.rotation_matrix(curve.atoms, curve_rotated.atoms)
-    assert_array_almost_equal(R_first.T, rm._first_rot)
+    assert_almost_equal(R_first.T, rm._first_rot)
 
     for R, ts in zip(rm.R, curve.atoms.universe.trajectory):
         curve.atoms.translate(-curve.atoms.center_of_geometry())
         curve.atoms.rotate(R_first.T)
         curve.atoms.rotate(R)
         est_R = rot.rotation_matrix(curve.atoms, curve_rotated.atoms)
-        assert_array_almost_equal(est_R, np.eye(3))
+        assert_almost_equal(est_R, np.eye(3))
 
 
 def test_RotationMatrix_with_reference(curve, curve_rotated):
@@ -227,7 +226,7 @@ def test_RotationMatrix_with_reference(curve, curve_rotated):
         curve.atoms, ref=curve_rotated.atoms, align_first_to_ref=False).run()
     curve.atoms.universe.trajectory[0]
     r = rot.rotation_matrix(curve_rotated.atoms, curve.atoms)
-    assert_array_almost_equal(rm.R[0], r)
+    assert_almost_equal(rm.R[0], r)
 
 
 def test_RotationMatrix_iterations(curve):
@@ -235,7 +234,7 @@ def test_RotationMatrix_iterations(curve):
     rm = rot.RotationMatrix(
         curve.atoms, stop=5, align_first_to_ref=False).run()
     rm = rot.RotationMatrix(curve.atoms, align_first_to_ref=True).run()
-    assert_array_almost_equal(rm._first_rot, np.eye(3))
+    assert_almost_equal(rm._first_rot, np.eye(3))
 
 
 def test_cos_t():
@@ -254,7 +253,7 @@ def test_make_right_handed():
     M = np.eye(3)
     M[:, 0] *= -1
     M = rot.make_right_handed(M)
-    assert_array_equal(np.eye(3), M)
+    assert_equal(np.eye(3), M)
 
     with pytest.raises(RuntimeError):
         M = np.eye(3)
@@ -293,7 +292,7 @@ def test_rotations_at_t_exceptions_R_shape(shape):
 def test_rotations_at_t_0(rotations):
     R = rot.rotations_at_t(rotations, 0)
     for r in R:
-        assert_array_almost_equal(r, np.eye(3))
+        assert_almost_equal(r, np.eye(3))
 
 
 @pytest.mark.parametrize('t', range(5))
@@ -301,8 +300,7 @@ def test_rotations_at_t(rotations, t):
     R = rot.rotations_at_t(rotations, t)
     assert R.shape == (len(rotations) - t, 3, 3)
     for i in range(len(rotations) - t):
-        assert_array_almost_equal(R[i],
-                                  np.dot(rotations[i], rotations[i + t].T))
+        assert_almost_equal(R[i], np.dot(rotations[i], rotations[i + t].T))
 
 
 def test_quaternion_covariance_exceptions():
@@ -337,7 +335,7 @@ def test_rotations_covariance(rotations):
     u /= 4
 
     cov = rot._quaternion_covariance(rotations, t)
-    assert_array_almost_equal(u, cov)
+    assert_almost_equal(u, cov)
 
 
 @pytest.mark.parametrize('n_jobs', [1, 2])
@@ -373,9 +371,9 @@ def test_quaternion_correlations(params):
     cor = rot.moment_2(params.t, params.model)
     for i, j in combinations_with_replacement(range(3), 2):
         if i == j:
-            assert_array_almost_equal(cor[i, i], params.msdq[i])
+            assert_almost_equal(cor[i, i], params.msdq[i])
         else:
-            assert_array_almost_equal(cor[i, j], np.zeros(params.t.size))
+            assert_almost_equal(cor[i, j], np.zeros(params.t.size))
 
 
 def test_metropolis():
@@ -439,4 +437,4 @@ def test_anneal(D):
     tensor = rot.RotationTensor(D, np.eye(3))
     moment2 = rot.moment_2(t, tensor)
     result = rot.anneal(moment2, t, D=D * 2, eps=0.01)[0]
-    assert_almost_equal(result.D, D, decimal=4)
+    assert_almost_equal(result.D, D, decimal=3)

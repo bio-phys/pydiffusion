@@ -22,7 +22,7 @@ import MDAnalysis as mda
 from collections import namedtuple
 
 import pytest
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_almost_equal
 
 from pydiffusion.util.random import random_walk
 import pydiffusion.translation as hdt
@@ -34,7 +34,7 @@ class TestMSD:
         a = np.arange(9)
         msd = hdt.msd(a, fft=False)
         assert 8 == len(msd)
-        assert_array_almost_equal((a**2)[:-1], msd)
+        assert_almost_equal((a**2)[:-1], msd)
 
     def test_msd_arange_fft(self):
         a = np.arange(90)
@@ -43,35 +43,35 @@ class TestMSD:
         # for a few values the result is off by about 0.33. I don't know where
         # this comes from but this solution is only a good aproxximation for
         # large values of N anyway
-        assert_array_almost_equal((a**2)[:-1], msd, decimal=0)
+        assert_almost_equal((a**2)[:-1], msd, decimal=0)
 
     def test_msd_constant_slow(self):
         a = np.ones(9) * 42
         msd = hdt.msd(a, fft=False)
-        assert_array_almost_equal(np.zeros(len(a) - 1), msd)
+        assert_almost_equal(np.zeros(len(a) - 1), msd)
 
     def test_msd_constant_fft(self):
         a = np.ones(9) * 42
         msd = hdt.msd(a)
-        assert_array_almost_equal(np.zeros(len(a) - 1), msd)
+        assert_almost_equal(np.zeros(len(a) - 1), msd)
 
     def test_same_result(self):
         a = random_walk(1, 10000, 508842746).reshape(10000)
         nlags = 100
         msd_slow = hdt.msd(a, nlags=nlags, fft=False)
         msd_fast = hdt.msd(a, nlags=nlags, fft=True)
-        assert_array_almost_equal(msd_slow, msd_fast)
+        assert_almost_equal(msd_slow, msd_fast)
 
         b = random_walk(3, 10000)
         msd_slow = hdt.msd(b, nlags=nlags, fft=False)
         msd_fast = hdt.msd(b, nlags=nlags, fft=True)
-        assert_array_almost_equal(msd_slow, msd_fast)
+        assert_almost_equal(msd_slow, msd_fast)
 
     def test_array_like(self):
         a = list(np.arange(9))
         msd = hdt.msd(a, fft=False)
         assert 8 == len(msd)
-        assert_array_almost_equal(np.power(a, 2)[:-1], msd)
+        assert_almost_equal(np.power(a, 2)[:-1], msd)
 
     def test_ValueError(self):
         a = np.ones((3, 3, 3))
@@ -117,5 +117,5 @@ def curve(data):
 def test_ParticleCS(curve, rot):
     pcs = hdt.ParticleCS(curve.atoms, rotation=rot).run()
     diff = np.diff(pcs.pcs, axis=0)
-    assert_array_almost_equal(diff, np.ones(diff.shape) * diff[0], decimal=2)
-    assert_array_almost_equal(diff[0], curve.trans, decimal=2)
+    assert_almost_equal(diff, np.ones(diff.shape) * diff[0], decimal=2)
+    assert_almost_equal(diff[0], curve.trans, decimal=2)
