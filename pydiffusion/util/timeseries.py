@@ -96,10 +96,8 @@ def acf(x, nlags=None, row_var=False, demean=True, norm=True):
     elif x.ndim == 2:
         if not row_var:
             x = x.T
-        ac = np.array([_acf(
-            var, nlags, demean=demean, norm=norm) for var in x])
+        ac = np.array(
+            [_acf(var, nlags, demean=demean, norm=norm) for var in x])
         return ac if row_var else ac.T
     else:
         return _acf(x, nlags, demean=demean, norm=norm)
-
-

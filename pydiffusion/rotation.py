@@ -983,9 +983,9 @@ def anneal(obs,
             total_acc_prop = tacc / (i + 1)
             mode_acc_prop = macc / ((i + 1) % switch + 1)
             print(
-                "{:3d}: chi2 = {:>7.2f}, p={:.2f}, b={:^5.2f}, ta={:.2f}, ma={:.2f}, c={}, m={}, dE={:>7.2f},".
-                format(i, min_val,
-                       metropolis(dE, b), b, total_acc_prop, mode_acc_prop,
-                       count, mode, dE))
+                "{:3d}: chi2={:>7.2f}, p={:.2f}, b={:^5.2f}, ta={:.2f}, ma={:.2f}, c={}, m={}, "
+                "dE={:>7.2f}".format(i, min_val,
+                                     metropolis(dE, b), b, total_acc_prop,
+                                     mode_acc_prop, count, mode, dE))
 
     return model, min_val
