@@ -1,6 +1,17 @@
+import sys
 from setuptools import setup, find_packages
-from Cython.Build import cythonize
-import numpy as np
+
+try:
+    import numpy as np
+except ImportError:
+    print("Need numpy for installation")
+    sys.exit(1)
+
+try:
+    from Cython.Build import cythonize
+except ImportError:
+    print("Need cython for installation")
+    sys.exit(1)
 
 try:
     numpy_include = np.get_include()
