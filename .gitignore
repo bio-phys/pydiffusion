@@ -1,0 +1,10 @@
+build
+dist
+*egg-info
+*.so
+*.pyc
+.cache
+*.npz
+htmlcov
+.coverage
+*.c
