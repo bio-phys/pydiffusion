@@ -47,6 +47,9 @@ class CovFig(object):
         for ax in self.axes.ravel():
             ax.set(**kwargs)
 
+    def tight_layout(self):
+        self.fig.tight_layout()
+
 
 def plot_covariance(covar, time=None, covfig=None, show_limit=False, **kwargs):
     """ given a covariance plot it in a Covariance Figure
@@ -67,3 +70,5 @@ def plot_covariance(covar, time=None, covfig=None, show_limit=False, **kwargs):
     arow = axes[1]
     for ax, (i, j) in zip(arow, itertools.combinations(range(3), 2)):
         ax.plot(time, covar[i, j], **kwargs)
+
+    return covfig
