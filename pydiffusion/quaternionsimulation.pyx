@@ -294,7 +294,7 @@ def run(D, niter, dt, random_state=None):
 
     cdef int i
     for i in range(1, niter):
-        c_mul(view_q[i], view_q[i-1], q_new)
+        c_mul(view_q[i-1], view_q[i], q_new)
         view_q[i] = q_new
 
     return q
