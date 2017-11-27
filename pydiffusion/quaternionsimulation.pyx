@@ -221,12 +221,28 @@ def quat(axis, angle):
     quat[1:] = np.sin(angle) * axis
     return quat
 
-def quaternion_matrix(q):
+
+def quaternion_to_matrix(q):
+    """transform quaternion into rotation matrix
+
+    References
+    ----------
+    Goldstein classical mechanics
+    """
     cdef DTYPE_t[::1] u = np.asarray(q, dtype=DTYPE)
-    cdef DTYPE_t[:, ::1] m = np.empty((3, 3))
+    m = np.empty((3, 3))
 
     m[0, 0] = 1 - 2 * (u[2]*u[2] + u[3]*u[3])
     m[0, 1] = 2 * (u[0]*u[3] + u[1]*u[2])
+    m[0, 2] = 2 * (u[1]*u[3] - u[0]*u[2])
+
+    m[1, 0] = 2 * (u[1]*u[2] - u[0]*u[3])
+    m[1, 1] = 1 - 2 * (u[1]*u[1] + u[3]*u[3])
+    m[1, 2] = 2 * (u[0]*u[1] + u[2]*u[3])
+
+    m[2, 0] = 2 * (u[0]*u[2] + u[1]*u[3])
+    m[2, 1] = 2 * (u[2]*u[3] - u[0]*u[1])
+    m[2, 2] = 1 - 2 * (u[1]*u[1] + u[2]*u[2])
 
     return m
 
