@@ -18,17 +18,15 @@
 # You should have received a copy of the GNU General Public License
 # along with pydiffusion.  If not, see <http://www.gnu.org/licenses/>.
 import numpy as np
-from os.path import join as pjoin, dirname
 import MDAnalysis as mda
 from collections import namedtuple
 
 import pytest
 from numpy.testing import assert_array_almost_equal
 
-from hummer.random import random_walk
-import hummer.diffusion.translation as hdt
-
-DATA_DIR = pjoin(dirname(__file__), 'data')
+from pydiffusion.util.random import random_walk
+import pydiffusion.translation as hdt
+from pydiffusion.util.testing import data
 
 
 class TestMSD:
@@ -82,7 +80,7 @@ class TestMSD:
 
 
 @pytest.fixture
-def curve():
+def curve(data):
     # Code to generate trajectory from any atomgroup `s`
     # def rotate(ag, R):
     #     cg = ag.center_of_geometry()
@@ -109,8 +107,7 @@ def curve():
     #         s.translate(trans)
     #         trans = np.dot(trans, rot1.T)
     #         w.write(s)
-    u = mda.Universe(pjoin(DATA_DIR, 'curve.pdb'),
-                     pjoin(DATA_DIR, 'curve.xtc'))
+    u = mda.Universe(data['curve.pdb'], data['curve.xtc'])
     n_frames = u.trajectory.n_frames - 1  # stored an extra frame
     trans = np.array([2 * np.pi * 20 / n_frames, 0, 0])
     return namedtuple('TT', 'atoms, trans')(u.atoms, trans)

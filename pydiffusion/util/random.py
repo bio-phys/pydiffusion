@@ -20,6 +20,7 @@
 from __future__ import absolute_import
 from MDAnalysis.lib import transformations
 from scipy._lib._util import check_random_state
+import numpy as np
 
 
 def rotation(angle, random_state=None):
@@ -39,3 +40,27 @@ def rotation(angle, random_state=None):
     axis = random_state.normal(size=3)
     r = transformations.rotation_matrix(angle, axis)
     return r[:3, :3]
+
+
+def random_walk(n_dim, n_frames, random_state=None):
+    """
+    generate randomwalk without barriers in n_dim dimensions
+
+    Parameters
+    ----------
+    n_frames : int
+        length of trajectory
+    n_dim : int
+        number of dimensions
+    random_state : RandomState (optional)
+        numpy RandomState to use. If ``None`` use default RandomState
+
+    Returns
+    -------
+    ndarray : (n_frames, n_dim, order='F')
+        random walk
+    """
+    random_state = check_random_state(random_state)
+    trj = random_state.uniform(low=-1, high=1, size=(n_frames, n_dim))
+    trj = np.array(trj, order='F', dtype=np.double)
+    return trj.cumsum(0)

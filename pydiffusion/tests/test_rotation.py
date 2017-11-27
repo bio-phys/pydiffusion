@@ -21,7 +21,6 @@ from __future__ import absolute_import, division
 from six.moves import range, zip
 
 import numpy as np
-from os.path import join as pjoin, dirname
 import MDAnalysis as mda
 from MDAnalysis.lib import transformations
 from collections import namedtuple
@@ -34,8 +33,7 @@ from numpy.testing import (assert_equal, assert_array_equal,
 from scipy.special import legendre
 
 import pydiffusion.rotation as rot
-
-DATA_DIR = pjoin(dirname(__file__), 'data')
+from pydiffusion.util.testing import data
 
 
 def test__D():
@@ -129,7 +127,7 @@ def test_rcf_rank_bigger_2():
 
 
 @pytest.fixture
-def curve():
+def curve(data):
     # Code to generate trajectory from any atomgroup `s`
     # def rotate(ag, R):
     #     """This is the default rotation in MDAnalysis >0.16.0"""
@@ -157,8 +155,7 @@ def curve():
     #         s.translate(trans)
     #         trans = np.dot(trans, rot.T)
     #         w.write(s)
-    u = mda.Universe(
-        pjoin(DATA_DIR, 'curve.pdb'), pjoin(DATA_DIR, 'curve.xtc'))
+    u = mda.Universe(data['curve.pdb'], data['curve.xtc'])
     n_frames = u.trajectory.n_frames - 1
     return namedtuple('TT', 'atoms, rot')(
         u.atoms, mda.lib.transformations.rotation_matrix(
@@ -166,9 +163,9 @@ def curve():
 
 
 @pytest.fixture
-def curve_rotated():
+def curve_rotated(data):
     # added random rotation to a frame in curve
-    return mda.Universe(pjoin(DATA_DIR, 'curve-rotated.pdb'))
+    return mda.Universe(data['curve-rotated.pdb'])
 
 
 def test_RotationMatrix(curve):

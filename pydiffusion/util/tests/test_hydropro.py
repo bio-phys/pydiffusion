@@ -25,6 +25,7 @@ import pytest
 from numpy.testing import assert_array_almost_equal
 
 from pydiffusion.util import hydropro
+from pydiffusion.util.testing import data
 
 
 def test_config():
@@ -76,8 +77,7 @@ def test_write_config(tmpdir):
         assert r == l.strip()
 
 
-@pytest.mark.skip("broken fix later")
-def test_read_diffusion_tensor():
+def test_read_diffusion_tensor(data):
     res_tensor = np.array(
         [[ 1.165E-06,-1.519E-08, 5.281E-08, 1.044E-02, 2.228E-02, 1.652E-02],
          [-1.520E-08, 1.146E-06,-1.588E-08, 2.228E-02,-1.056E-03,-8.636E-03],
@@ -85,14 +85,11 @@ def test_read_diffusion_tensor():
          [ 1.044E-02, 2.228E-02, 1.651E-02, 2.466E+07,-1.917E+06, 4.468E+06],
          [ 2.228E-02,-1.056E-03,-8.644E-03,-1.917E+06, 2.163E+07,-1.584E+06],
          [ 1.652E-02,-8.636E-03,-4.427E-03, 4.468E+06,-1.584E+06, 2.503E+07]])
-    fname = 'hummer/simulation/tests/data/hydropro-res.txt'
-    tensor = hydropro.read_diffusion_tensor(fname)
+    tensor = hydropro.read_diffusion_tensor(data['hydropro-res.txt'])
     assert_array_almost_equal(res_tensor, tensor)
 
 
-@pytest.mark.skip("broken fix later")
-def test_read_center_of_diffusion():
+def test_read_center_of_diffusion(data):
     res_cd = np.array([1.994E-07, 1.728E-07, 2.292E-07])
-    fname = 'hummer/simulation/tests/data/hydropro-res.txt'
-    cd = hydropro.read_center_of_diffusion(fname)
+    cd = hydropro.read_center_of_diffusion(data['hydropro-res.txt'])
     assert_array_almost_equal(res_cd, cd)
