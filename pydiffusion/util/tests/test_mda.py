@@ -25,15 +25,15 @@ from MDAnalysisTests.datafiles import PSF, DCD
 from numpy.testing import assert_equal
 import pytest
 
-from hummer import util
+from pydiffusion import util
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def ag():
     return mda.Universe(PSF, DCD).atoms
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def u():
     return mda.Universe(PSF, DCD)
 
@@ -92,37 +92,3 @@ class TestParseCommonSelection:
         with pytest.raises(RuntimeError):
             util.mda.parse_common_selection(u, 'bynum 1-3', 'bynum 2-4',
                                             strict=True)
-
-
-@pytest.fixture
-def ndx(tmpdir):
-    indices = """[Protein]
-    1 2 3 4
-    [Membrane]
-    5 6 7
-    [Other]
-    10 12 14
-    """
-    fname = pjoin(tmpdir.dirname, 'test.ndx')
-
-    with open(fname, 'w') as f:
-        f.write(indices)
-
-    return fname
-
-
-def test_ndx_to_selections(ndx):
-    indices = dict(util.mda.ndx_to_selections(ndx))
-    assert len(indices) == 3
-    assert_equal(indices['Protein'], [1, 2, 3, 4])
-    assert_equal(indices['Membrane'], [5, 6, 7])
-    assert_equal(indices['Other'], [10, 12, 14])
-
-
-def test_ndx_to_atomgroups(ndx, u):
-    selections = util.mda.ndx_to_atomgroups(ndx, u)
-
-    assert len(selections) == 3
-    assert_equal(selections['Protein'].ids, np.array([1, 2, 3, 4]) - 1)
-    assert_equal(selections['Membrane'].ids, np.array([5, 6, 7]) - 1)
-    assert_equal(selections['Other'].ids, np.array([10, 12, 14]) - 1)
