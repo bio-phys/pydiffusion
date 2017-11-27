@@ -23,6 +23,8 @@ import itertools
 import matplotlib.pyplot as plt
 import numpy as np
 
+from .rotation import moment_2
+
 
 class CovFig(object):
     """Have a figure like object that makes plotting of a quaternion covariance
@@ -71,4 +73,12 @@ def plot_covariance(covar, time=None, covfig=None, show_limit=False, **kwargs):
     for ax, (i, j) in zip(arow, itertools.combinations(range(3), 2)):
         ax.plot(time, covar[i, j], **kwargs)
 
+    return covfig
+
+
+def plot_model(model, time, covfig=None, **kwargs):
+    if covfig is None:
+        covfig = CovFig()
+    covar = moment_2(time, model)
+    plot_covariance(covar, time, covfig=covfig, **kwargs)
     return covfig
