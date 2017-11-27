@@ -314,6 +314,7 @@ class RotationMatrix(AnalysisBase):
 
     def _conclude(self):
         self.R = np.asarray(self.R)
+        self.frames = np.asarray(self.frames)
 
 
 def cos_t(R, x0):
