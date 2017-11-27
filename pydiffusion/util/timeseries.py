@@ -20,7 +20,7 @@
 from __future__ import division, absolute_import
 import numpy as np
 import pandas as pd
-from statsmodels.compat.scipy import _next_regular
+from scipy import fftpack
 
 
 def _acf(x, nlags, demean=True, norm=True, for_pandas=False):
@@ -34,10 +34,10 @@ def _acf(x, nlags, demean=True, norm=True, for_pandas=False):
     d = nobs - np.arange(nobs)
     # ensure that we always use a power of 2 or 3 for zero-padding,
     # this way we'll ensure O(n log n) runtime of the fft.
-    n = _next_regular(2 * nobs + 1)
+    n = fftpack.helper.next_fast_len(2 * nobs + 1)
 
-    Frf = np.fft.fft(x, n=n)
-    ac = np.fft.ifft(Frf * np.conjugate(Frf))[:nobs] / d
+    Frf = fftpack.fft(x, n=n)
+    ac = fftpack.ifft(Frf * np.conjugate(Frf))[:nobs] / d
     ac = np.real(ac[:nlags])
 
     if norm:
