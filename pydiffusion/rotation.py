@@ -223,11 +223,10 @@ def tau_2(D, v_body='average'):
     """
     # catch isotropic case here because equation doesn't divide by 0 in this case
     if (isinstance(v_body, string_types) and v_body == 'average') or D[0] == D[1] == D[2]:
-        el1 = 1 / (4 * D[0] + D[1] + D[2])
-        el2 = 1 / (D[0] + 4 * D[1] + D[2])
-        el3 = 1 / (D[0] + D[1] + 4 * D[2])
-        el4 = 1 / (np.sum(D) - delta(D))
-        return 1 / 5 * (el1 + el2 + el3 + el4)
+        DD = _D(D)
+        tau = np.sum([1 / (DD + d) for d in D]) + np.sum(D) / (
+            D[0] * D[1] + D[1] * D[2] + D[2] * D[0])
+        return tau / 15
     else:
         v_body = np.asarray(v_body, dtype=float)
         v_body /= np.linalg.norm(v_body)
@@ -553,7 +552,8 @@ def quaternion_covariance(R, t, step=None, n_jobs=1, **kwargs):
         u = [_quaternion_covariance(R, i, step) for i in range(t)]
     else:
         u = Parallel(
-            n_jobs=n_jobs, **kwargs)(delayed(_quaternion_covariance)(R, i, step)
+            n_jobs=n_jobs, **kwargs)(delayed(_quaternion_covariance)(R, i,
+                                                                     step)
                                      for i in range(t))
     return np.asarray(u)
 
