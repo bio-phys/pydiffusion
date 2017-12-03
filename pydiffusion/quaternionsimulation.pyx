@@ -123,11 +123,11 @@ def inv(q):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef void c_mul(DTYPE_t[::1] q0, DTYPE_t[::1] q1, DTYPE_t[::1] qq):
-    qq[0] = q1[0]*q0[0] - q1[1]*q0[1] - q1[2]*q0[2] - q1[3]*q0[3]
-    qq[1] = q1[0]*q0[1] + q1[1]*q0[0] + q1[2]*q0[3] - q1[3]*q0[2]
-    qq[2] = q1[0]*q0[2] - q1[1]*q0[3] + q1[2]*q0[0] + q1[3]*q0[1]
-    qq[3] = q1[0]*q0[3] + q1[1]*q0[2] - q1[2]*q0[1] + q1[3]*q0[0]
+cdef void c_mul(DTYPE_t[::1] a, DTYPE_t[::1] b, DTYPE_t[::1] q):
+    q[0] = a[0]*b[0] - a[1]*b[1] - a[2]*b[2] - a[3]*b[3]
+    q[1] = a[0]*b[1] + a[1]*b[0] + a[2]*b[3] - a[3]*b[2]
+    q[2] = a[0]*b[2] - a[1]*b[3] + a[2]*b[0] + a[3]*b[1]
+    q[3] = a[0]*b[3] + a[1]*b[2] - a[2]*b[1] + a[3]*b[0]
 
 
 def mul(q1, q2):
@@ -294,7 +294,7 @@ def run(D, niter, dt, random_state=None):
 
     cdef int i
     for i in range(1, niter):
-        c_mul(view_q[i-1], view_q[i], q_new)
+        c_mul(view_q[i], view_q[i-1], q_new)
         view_q[i] = q_new
 
     return q
