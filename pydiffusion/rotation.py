@@ -547,6 +547,7 @@ def quaternion_covariance(R, t, step=None, n_jobs=1, **kwargs):
         quaternion covariance upto time t
 
     """
+    R = np.asarray(R)
     # split this to avoid joblib warnings
     if n_jobs == 1:
         u = [_quaternion_covariance(R, i, step) for i in range(t)]
