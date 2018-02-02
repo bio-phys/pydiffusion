@@ -1,0 +1,30 @@
+language: generic
+sudo: false
+
+branches:
+  only:
+    - master
+
+env:
+  global:
+    - PYTHON_VERSION=3.6
+    - MAIN_CMD="pytest"
+    - SETUP_CMD="-v"
+    - CONDA_DEPENDENCIES="mdanalysis>=0.17.0 numba joblib six scipy>=0.19.0 cython"
+    - CONDA_CHANNELS="conda-forge"
+    - NUMPY_VERSION=stable
+  matrix:
+    - PYTHON_VERSION=3.5
+    - PYTHON_VERSION=3.6
+    - PYTHON_VERSION=2.7
+
+matrix:
+  fast_finish: true
+
+install:
+  - git clone git://github.com/astropy/ci-helpers.git
+  - source ci-helpers/travis/setup_conda.sh
+  - pip install -e .
+
+script:
+  - $MAIN_CMD $SETUP_CMD

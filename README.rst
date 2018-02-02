@@ -2,6 +2,9 @@
  PyDiffusion
 =============
 
+.. image:: https://travis-ci.org/bio-phys/pydiffusion.svg?branch=master
+   :target: https://travis-ci.org/bio-phys/pydiffusion
+
 PyDiffusion is a python library to analyze the rotational and translational
 diffusion of molecules in molecular dynamics simulation or rigid body simulations.
 
