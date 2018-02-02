@@ -85,7 +85,7 @@ def test_rotate_by(right_angle, zero_quat, vec, right_angle_mat):
         rotation.rotate_by(right_angle, vec),
         rotation.rotate_by(-right_angle, vec))
     assert_almost_equal(
-        np.dot(right_angle_mat.T, vec), rotation.rotate_by(right_angle, vec))
+        np.dot(right_angle_mat, vec), rotation.rotate_by(right_angle, vec))
 
 
 def test_inverse(right_angle):
