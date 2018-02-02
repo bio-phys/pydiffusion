@@ -9,22 +9,30 @@ INSTALL
 =======
 **Note**: You need cython and numpy to install pydiffusion
 
-```
-python setpy.py install
-```
+.. code::
 
-If you want to install the library local for your user then append the `--user`
-flag. This is recommended.
+   python setup.py install
 
+If you want to install the library locally for your user then append the ``--user``
+flag.
+
+Usage
+=====
+
+Please refer to the example notebook.
+
+References
+==========
+
+ | M. Linke, J. Köfinger, G. Hummer: Fully Anisotropic Rotational Diffusion Tensor from Molecular Dynamics Simulations. The Journal of Physical Chemistry Part B (2018, accepted)
 
 DEVELOPMENT
 ===========
 
 To install the library in development mode use
 
-```
-python setup.py develop --user
-```
+.. code::
+   python setup.py develop --user
 
 This will create a python-package-symlink to this folder and every change you
 make is directly applied to your installed package.
