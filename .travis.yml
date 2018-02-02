@@ -10,7 +10,7 @@ env:
     - PYTHON_VERSION=3.6
     - MAIN_CMD="pytest"
     - SETUP_CMD="-v"
-    - CONDA_DEPENDENCIES="mdanalysis>=0.17.0 numba joblib six scipy>=0.19.0 cython"
+    - CONDA_DEPENDENCIES="mdanalysis>=0.17.0 numba joblib six scipy>=0.19.0 cython mdanalysistests"
     - CONDA_CHANNELS="conda-forge"
     - NUMPY_VERSION=stable
   matrix:
