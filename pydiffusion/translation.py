@@ -137,7 +137,8 @@ class TranslationTensor(object):
 
     @classmethod
     def from_hydropro(cls, res_file):
-        transD = hydropro.read_diffusion_tensor(res_file)[:3, :3]
+        # convert from cm^2/s to AA^2/ns
+        transD = hydropro.read_diffusion_tensor(res_file)[:3, :3] * 1e7
         D, R = pcs(transD)[:2]
         return cls(D, R)
 

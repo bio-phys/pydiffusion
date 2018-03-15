@@ -621,7 +621,8 @@ class RotationTensor(object):
 
     @classmethod
     def from_hydropro(cls, res_file):
-        rotD = hydropro.read_diffusion_tensor(res_file)[3:, 3:]
+        # convert from 1/s to 1/ns
+        rotD = hydropro.read_diffusion_tensor(res_file)[3:, 3:] * 1e-9
         D, R = pcs(rotD)[:2]
         return cls(D, R.T)
 
