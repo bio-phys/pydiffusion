@@ -192,7 +192,7 @@ class ParticleCS(AnalysisBase):
             self._rotation = np.asarray(rotation)
 
     def _prepare(self):
-        self._dx = []
+        self._dx = [[0, 0, 0]]
         self._trajectory[self.start - self.step]
         self._pos_prev = self._mobile.positions.copy()
 
