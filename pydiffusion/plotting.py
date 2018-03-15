@@ -126,9 +126,14 @@ def plot_error(error, time=None, covfig=None, **kwargs):
     return covfig
 
 
-def plot_model(model, time, **kwargs):
+def plot_model(model, time, ci=False, n=1, **kwargs):
     covar = moment_2(time, model)
-    return plot_covariance(covar, time, **kwargs)
+    error = None
+    if ci:
+        m2 = moment_2(time, model)
+        m4 = moment_4(time, model)
+        error = 2 * np.sqrt(m4 - m2**2) / np.sqrt(n - 1)
+    return plot_covariance(covar, time, error=error, **kwargs)
 
 
 def plot_model_error(model, time, n=1, **kwargs):
