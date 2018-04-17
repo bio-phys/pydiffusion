@@ -30,7 +30,8 @@ Please refer to the example notebook.
 References
 ==========
 
- | M. Linke, J. Köfinger, G. Hummer: Fully Anisotropic Rotational Diffusion Tensor from Molecular Dynamics Simulations. The Journal of Physical Chemistry Part B (2018, accepted)
+ | M. Linke, J. Köfinger, G. Hummer: Fully Anisotropic Rotational Diffusion Tensor from Molecular Dynamics Simulations. The Journal of Physical Chemistry Part B `(2018, in print)  <https://pubs.acs.org/doi/abs/10.1021/acs.jpcb.7b11988>`_
+
 
 DEVELOPMENT
 ===========
