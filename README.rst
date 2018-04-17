@@ -25,7 +25,7 @@ flag.
 Usage
 =====
 
-Please refer to the example notebook.
+Please refer to the `example notebook <https://github.com/bio-phys/pydiffusion/blob/master/example/Analysis.ipynb>`_.
 
 References
 ==========
