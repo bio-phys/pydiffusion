@@ -962,6 +962,8 @@ def anneal(obs,
     angle_scale = inf_generator(*angle_mima)
 
     min_val = chi2(obs, model, time)
+    global_min = min_val
+    global_model = model
 
     mode = 'D'
 
@@ -1038,8 +1040,11 @@ def anneal(obs,
             mode_acc_prop = macc / ((i + 1) % switch + 1)
             print(
                 "{:3d}: chi2={:>7.2f}, p={:.2f}, b={:^5.2f}, ta={:.2f}, ma={:.2f}, c={}, m={}, "
-                "dE={:>7.2f}".format(i, min_val,
+                "dE={:>7.2f}".format(i, global_min,
                                      metropolis(dE, b), b, total_acc_prop,
                                      mode_acc_prop, count, mode, dE))
+        if min_val < global_min:
+            global_model = model
+            global_min = min_val
 
-    return model, min_val
+    return global_model, min_val
