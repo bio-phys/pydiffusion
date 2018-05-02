@@ -114,7 +114,7 @@ def write_config(conf, folder='.'):
         f.write(conf + eof)
 
 
-def run(folder='.', hp_name='hydrppro'):
+def run(folder='.', hp_name='hydropro'):
     """Run HYDROPRO in folder
 
     Parameters
@@ -131,7 +131,7 @@ def run(folder='.', hp_name='hydrppro'):
     """
     cwd = os.getcwd()
     os.chdir(folder)
-    return_code = subprocess.call('hydropro')
+    return_code = subprocess.call(hp_name)
     os.chdir(cwd)
     return return_code
 
