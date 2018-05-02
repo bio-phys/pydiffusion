@@ -54,8 +54,11 @@ class CovFig(object):
         for ax in self.axes.ravel():
             ax.set(**kwargs)
 
-    def tight_layout(self):
-        self.fig.tight_layout()
+    def tight_layout(self, *args, **kwargs):
+        self.fig.tight_layout(*args, **kwargs)
+
+    def savefig(self, *args, **kwargs):
+        self.fig.savefig(*args, **kwargs)
 
 
 def plot_covariance(covar, time=None, error=None, covfig=None, **kwargs):
