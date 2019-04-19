@@ -359,6 +359,10 @@ class RotationMatrix(AnalysisBase):
             weights = self._ref.masses
         self._weights = weights
         self._align_first_to_ref = align_first_to_ref
+
+    def _prepare(self):
+        self.R = []
+        self.frames = []
         # store the rotation matrix to the reference. This way it is later
         # possible to move all other frames into the coordinate system of the
         # reference
@@ -369,10 +373,6 @@ class RotationMatrix(AnalysisBase):
                                               self._weights)
         else:
             self._first_rot = np.eye(3)
-
-    def _prepare(self):
-        self.R = []
-        self.frames = []
 
     def _single_frame(self):
         if self._align_first_to_ref:
