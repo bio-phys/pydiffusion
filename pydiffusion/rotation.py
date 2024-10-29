@@ -556,7 +556,7 @@ def quaternion_covariance(R, t, step=None, n_jobs=1, **kwargs):
     return np.asarray(u)
 
 
-# @jit
+@jit(forceobj=True)
 def chi2(obs, model, time=None):
     """chi2 function for comparing two quaternion correlation functions
 
