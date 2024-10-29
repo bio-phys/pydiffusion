@@ -19,9 +19,7 @@
 # along with pydiffusion.  If not, see <http://www.gnu.org/licenses/>.
 import pytest
 
-from pydiffusion.util.testing import data
-
 
 def test_data(data):
     with pytest.raises(RuntimeError):
-        data['foo']
+        data["foo"]

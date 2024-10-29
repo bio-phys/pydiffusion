@@ -27,7 +27,7 @@ from .util.mda import parse_common_selection
 from .rotation import pcs
 from .util import hydropro
 
-__all__ = ['msd']
+__all__ = ["msd"]
 
 
 def _msd(x, nlags):
@@ -36,7 +36,7 @@ def _msd(x, nlags):
     """
     MSD = np.zeros(nlags)
     for i in range(1, nlags):
-        MSD[i] = np.mean(np.sum((x[i:] - x[:-i])**2, 1))
+        MSD[i] = np.mean(np.sum((x[i:] - x[:-i]) ** 2, 1))
     return MSD
 
 
@@ -58,8 +58,7 @@ def _msd_fft(x, nlags):
     x2 = np.vstack((zeros, x2, zeros))
     x2 = x2.sum(axis=1)
 
-    s_ab = np.sum(
-        [_acf(_x, N, demean=False, norm=False) for _x in x.T], axis=0)
+    s_ab = np.sum([_acf(_x, N, demean=False, norm=False) for _x in x.T], axis=0)
 
     MSD = 2 * x2.sum() + np.cumsum(-x2[:N] - x2[:1:-1])
     return (MSD / (N - np.arange(N)) - 2 * s_ab)[:nlags]
@@ -106,7 +105,7 @@ def msd(x, nlags=None, fft=True):
     if x.ndim == 1:
         x = x.reshape(len(x), 1)
     elif x.ndim > 2:
-        raise ValueError('MSD can only be calculated for 1D or 2D arrays')
+        raise ValueError("MSD can only be calculated for 1D or 2D arrays")
 
     if fft:
         return _msd_fft(x, nlags)
@@ -117,7 +116,7 @@ def msd(x, nlags=None, fft=True):
 class TranslationTensor(object):
     def __init__(self, D, R):
         D = np.array(D)
-        if D.shape != (3, ):
+        if D.shape != (3,):
             raise ValueError("D shape should be (3,)")
         self._D = D
 
@@ -176,17 +175,18 @@ class ParticleCS(AnalysisBase):
         # The run() method should start one frame after start since I need the
         # first frame for setting up the analysis. So do some manual conversion
         # of the start and step
-        if 'start' not in kwargs:
-            kwargs['start'] = 1
+        if "start" not in kwargs:
+            kwargs["start"] = 1
         # TODO: check correct beginning frame with the step
-        if 'step' in kwargs:
-            kwargs['start'] += kwargs['step']
+        if "step" in kwargs:
+            kwargs["start"] += kwargs["step"]
         super(ParticleCS, self).__init__(mobile.universe.trajectory, **kwargs)
         # I'm analysing one frame more then `_setup_frames` thinks
         self.n_frames += 1
 
         self._mobile, self._ref = parse_common_selection(
-            mobile.universe, mobile, reference)
+            mobile.universe, mobile, reference
+        )
         if rotation is None:
             self._rotation = np.eye(3)
         else:
@@ -203,8 +203,7 @@ class ParticleCS(AnalysisBase):
         com_prev = self._pos_prev.mean(0)
         diff = com - com_prev
 
-        R = align.rotation_matrix(self._pos_prev - com_prev,
-                                  self._ref.positions)[0]
+        R = align.rotation_matrix(self._pos_prev - com_prev, self._ref.positions)[0]
         self._dx.append(np.dot(diff, np.asarray(R).T))
         self._pos_prev = pos
 

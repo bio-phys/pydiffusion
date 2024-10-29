@@ -40,14 +40,14 @@ class CovFig(object):
 
         arow = self.axes[0]
         for i, ax in enumerate(arow):
-            ax.set_title('{}-{}'.format(i + 1, i + 1))
+            ax.set_title("{}-{}".format(i + 1, i + 1))
             if show_limits:
-                ax.axhline(1 / 4, linestyle='--', color='#808080')
+                ax.axhline(1 / 4, linestyle="--", color="#808080")
         arow = self.axes[1]
         for ax, (i, j) in zip(arow, itertools.combinations(range(3), 2)):
-            ax.set_title('{}-{}'.format(i + 1, j + 1))
+            ax.set_title("{}-{}".format(i + 1, j + 1))
             if show_limits:
-                ax.axhline(0, linestyle='--', color='#808080')
+                ax.axhline(0, linestyle="--", color="#808080")
 
     def set_all_axes(self, **kwargs):
         """call `set` with same arguments on all axes"""
@@ -62,8 +62,7 @@ class CovFig(object):
 
 
 def plot_covariance(covar, time=None, error=None, covfig=None, **kwargs):
-    """ given a covariance plot it in a Covariance Figure
-    """
+    """given a covariance plot it in a Covariance Figure"""
     if covfig is None:
         covfig = CovFig()
 
@@ -79,11 +78,11 @@ def plot_covariance(covar, time=None, error=None, covfig=None, **kwargs):
     for ax, (i, j) in zip(arow, itertools.combinations(range(3), 2)):
         artist = ax.plot(time, covar[i, j], **kwargs)
 
-    color = kwargs.pop('color', artist[0].get_color())
+    color = kwargs.pop("color", artist[0].get_color())
     if error is not None:
-        kwargs.pop('label', None)
-        kwargs.pop('alpha', None)
-        alpha = .5
+        kwargs.pop("label", None)
+        kwargs.pop("alpha", None)
+        alpha = 0.5
 
         arow = axes[0]
         for i, ax in enumerate(arow):
@@ -92,7 +91,8 @@ def plot_covariance(covar, time=None, error=None, covfig=None, **kwargs):
                 covar[i, i] - error[i, i],
                 covar[i, i] + error[i, i],
                 color=color,
-                alpha=alpha)
+                alpha=alpha,
+            )
         arow = axes[1]
         for ax, (i, j) in zip(arow, itertools.combinations(range(3), 2)):
             ax.fill_between(
@@ -100,7 +100,8 @@ def plot_covariance(covar, time=None, error=None, covfig=None, **kwargs):
                 covar[i, j] - error[i, j],
                 covar[i, j] + error[i, j],
                 color=color,
-                alpha=alpha)
+                alpha=alpha,
+            )
 
     return covfig
 

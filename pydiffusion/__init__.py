@@ -4,4 +4,4 @@ from . import rotation
 from . import quaternionsimulation
 from . import util
 
-__all__ = ['translation', 'rotation', 'quaternionsimulation', 'util']
+__all__ = ["translation", "rotation", "quaternionsimulation", "util"]

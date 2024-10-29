@@ -24,8 +24,7 @@ import subprocess
 import numpy as np
 
 
-def config(pdb, name=None, radius=None, temperatur=298, viscosity=0.01,
-           model='shell'):
+def config(pdb, name=None, radius=None, temperatur=298, viscosity=0.01, model="shell"):
     """Build up particle configuration for hydropro. The important missing part is
     the EOF declaration of the HYDROPRO format. This makes it possible to build
     up a configuration file for several input structures. Use ``write_config``
@@ -64,12 +63,8 @@ def config(pdb, name=None, radius=None, temperatur=298, viscosity=0.01,
     hummer.hydropro.write_config
 
     """
-    avail_models = {'atom': 1,
-                    'shell': 2,
-                    'bead': 4}
-    radius_suggested = {'atom': 2.9,
-                        'shell': 4.8,
-                        'bead': 6.1}
+    avail_models = {"atom": 1, "shell": 2, "bead": 4}
+    radius_suggested = {"atom": 2.9, "shell": 4.8, "bead": 6.1}
     default_conf = """{name}                               !name of molecule
 {name}                               !name for output file
 {pdb}                                !strucutural (pbd) file
@@ -90,12 +85,17 @@ def config(pdb, name=None, radius=None, temperatur=298, viscosity=0.01,
         name = splitext(basename(pdb))[0]
     if radius is None:
         radius = radius_suggested[model]
-    return default_conf.format(name=name, pdb=pdb, radius=radius,
-                               temperatur=temperatur - 273, viscosity=viscosity,
-                               model=avail_models[model])
+    return default_conf.format(
+        name=name,
+        pdb=pdb,
+        radius=radius,
+        temperatur=temperatur - 273,
+        viscosity=viscosity,
+        model=avail_models[model],
+    )
 
 
-def write_config(conf, folder='.'):
+def write_config(conf, folder="."):
     """write HYDROPRO config file. Always write configs using this method because it
     ensure that the config has a valid EOF. It also saves the file with the
     correct filename, hydropro.dat.
@@ -108,13 +108,13 @@ def write_config(conf, folder='.'):
         folder where to write config file. Be default save in current folder
 
     """
-    eof = '*                                    !EOF'
-    fname = folder + '/hydropro.dat'
-    with open(fname, 'w') as f:
+    eof = "*                                    !EOF"
+    fname = folder + "/hydropro.dat"
+    with open(fname, "w") as f:
         f.write(conf + eof)
 
 
-def run(folder='.', hp_name='hydropro'):
+def run(folder=".", hp_name="hydropro"):
     """Run HYDROPRO in folder
 
     Parameters

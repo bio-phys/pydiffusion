@@ -87,17 +87,12 @@ def acf(x, nlags=None, row_var=False, demean=True, norm=True):
             nlags = int(0.1 * (x.shape[1] / 2 - 1))
     if isinstance(x, pd.DataFrame):
         return x.apply(
-            _acf,
-            raw=True,
-            nlags=nlags,
-            for_pandas=True,
-            demean=demean,
-            norm=norm)[:nlags]
+            _acf, raw=True, nlags=nlags, for_pandas=True, demean=demean, norm=norm
+        )[:nlags]
     elif x.ndim == 2:
         if not row_var:
             x = x.T
-        ac = np.array(
-            [_acf(var, nlags, demean=demean, norm=norm) for var in x])
+        ac = np.array([_acf(var, nlags, demean=demean, norm=norm) for var in x])
         return ac if row_var else ac.T
     else:
         return _acf(x, nlags, demean=demean, norm=norm)

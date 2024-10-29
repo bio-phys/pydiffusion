@@ -26,7 +26,6 @@ from numpy.testing import assert_almost_equal
 
 from pydiffusion.util.random import random_walk
 import pydiffusion.translation as hdt
-from pydiffusion.util.testing import data
 
 
 class TestMSD:
@@ -107,13 +106,13 @@ def curve(data):
     #         s.translate(trans)
     #         trans = np.dot(trans, rot1.T)
     #         w.write(s)
-    u = mda.Universe(data['curve.pdb'], data['curve.xtc'])
+    u = mda.Universe(data["curve.pdb"], data["curve.xtc"])
     n_frames = u.trajectory.n_frames - 1  # stored an extra frame
     trans = np.array([2 * np.pi * 20 / n_frames, 0, 0])
-    return namedtuple('TT', 'atoms, trans')(u.atoms, trans)
+    return namedtuple("TT", "atoms, trans")(u.atoms, trans)
 
 
-@pytest.mark.parametrize('rot', [None, np.eye(3)])
+@pytest.mark.parametrize("rot", [None, np.eye(3)])
 def test_ParticleCS(curve, rot):
     pcs = hdt.ParticleCS(curve.atoms, rotation=rot).run()
     diff = np.diff(pcs.pcs, axis=0)

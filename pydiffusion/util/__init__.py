@@ -4,4 +4,4 @@ from . import hydropro
 from . import timeseries
 from . import random
 
-__all__ = ['mda', 'hydropro', 'timeseries', 'random']
+__all__ = ["mda", "hydropro", "timeseries", "random"]

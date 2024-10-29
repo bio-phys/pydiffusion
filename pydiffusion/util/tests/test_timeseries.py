@@ -29,7 +29,7 @@ from pydiffusion.util import timeseries
 
 @pytest.fixture
 def trigonometric():
-    Trig = namedtuple('Trig', 't, sin, cos')
+    Trig = namedtuple("Trig", "t, sin, cos")
     t = np.linspace(0, 10 * np.pi, 10000)
     sin = np.sin(t)
     cos = np.cos(t)
@@ -63,7 +63,7 @@ def test_nlags(trigonometric):
     assert len(acf) == 10
 
 
-@pytest.mark.parametrize('nlags', [100, None])
+@pytest.mark.parametrize("nlags", [100, None])
 def test_acf_1d(trigonometric, nlags):
     _acf = timeseries.acf(trigonometric.sin, nlags=nlags)
     # calculate default nlags
@@ -75,7 +75,7 @@ def test_acf_1d(trigonometric, nlags):
     assert_almost_equal(trigonometric.cos[:nlags], _acf, decimal=1)
 
 
-@pytest.mark.parametrize('nlags', [100, None])
+@pytest.mark.parametrize("nlags", [100, None])
 def test_acf_2d(trigonometric, nlags):
     sin = np.vstack((trigonometric.sin for _ in range(5)))
     _acf = timeseries.acf(sin, row_var=True, nlags=nlags)
@@ -103,7 +103,7 @@ def test_acf_col_var(trigonometric):
     assert_almost_equal(cos, _acf.T, decimal=1)
 
 
-@pytest.mark.parametrize('nlags', [100, None])
+@pytest.mark.parametrize("nlags", [100, None])
 def test_acf_DataFrame(trigonometric, nlags):
     sin = pd.DataFrame(np.vstack((trigonometric.sin for _ in range(5))).T)
     _acf = timeseries.acf(sin, nlags=nlags)

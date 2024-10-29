@@ -82,8 +82,7 @@ def parse_common_selection(universe, mobile, ref=None, strict=False):
 
     if ref is None:
         u2 = mda.Universe(universe.filename, universe.trajectory.filename)
-        ref = u2.select_atoms(*('bynum {}'.format(i + 1)
-                                for i in mobile.indices))
+        ref = u2.select_atoms(*("bynum {}".format(i + 1) for i in mobile.indices))
     else:
         ref = select_atoms_wrapper(universe, ref)
 
@@ -96,12 +95,11 @@ def parse_common_selection(universe, mobile, ref=None, strict=False):
         ids_ok = np.all(mobile.ids == ref.ids)
         names_ok = np.all(mobile.names == ref.names)
         resnames_ok = np.all(mobile.resnames == ref.resnames)
-        if not (resids_ok and segids_ok and ids_ok and names_ok and
-                resnames_ok):
+        if not (resids_ok and segids_ok and ids_ok and names_ok and resnames_ok):
             raise RuntimeError("mobile and ref aren't strictly the same")
 
     if universe == ref.universe:
         u2 = mda.Universe(universe.filename, universe.trajectory.filename)
-        ref = u2.select_atoms(*('bynum {}'.format(i + 1) for i in ref.indices))
+        ref = u2.select_atoms(*("bynum {}".format(i + 1) for i in ref.indices))
 
     return mobile, ref

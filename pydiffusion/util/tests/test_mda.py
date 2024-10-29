@@ -18,8 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with pydiffusion.  If not, see <http://www.gnu.org/licenses/>.
 import MDAnalysis as mda
-import numpy as np
-from os.path import join as pjoin
 
 from MDAnalysisTests.datafiles import PSF, DCD
 from numpy.testing import assert_equal
@@ -28,21 +26,20 @@ import pytest
 from pydiffusion import util
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def ag():
     return mda.Universe(PSF, DCD).atoms
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def u():
     return mda.Universe(PSF, DCD)
 
 
 class TestSelectAtomsWrapper:
-
-    @pytest.mark.parametrize('sel', ['name CA',
-                                     ('bynum 1', 'bynum 2'),
-                                     ['bynum 1', 'bynum 2']])
+    @pytest.mark.parametrize(
+        "sel", ["name CA", ("bynum 1", "bynum 2"), ["bynum 1", "bynum 2"]]
+    )
     def test_non_atomgroup_input(self, ag, sel):
         util.mda.select_atoms_wrapper(ag, sel)
 
@@ -55,20 +52,25 @@ class TestSelectAtomsWrapper:
 
 
 class TestParseCommonSelection:
-    @pytest.mark.parametrize('mobile, ref', [('name CA', None),
-                                             (('bynum 1', 'bynum 2'), None),
-                                             (['bynum 1', 'bynum 2'], None),
-                                             ('name CA', 'name CA'),
-                                             ('all', None),
-                                             ('bynum 1-3', 'bynum 2-4')])
+    @pytest.mark.parametrize(
+        "mobile, ref",
+        [
+            ("name CA", None),
+            (("bynum 1", "bynum 2"), None),
+            (["bynum 1", "bynum 2"], None),
+            ("name CA", "name CA"),
+            ("all", None),
+            ("bynum 1-3", "bynum 2-4"),
+        ],
+    )
     def test_input_combination(self, u, mobile, ref):
         m, r = util.mda.parse_common_selection(u, mobile, ref)
         assert m.universe != r.universe
         assert m.n_atoms == r.n_atoms
 
-    @pytest.mark.parametrize('mobile, ref', [('all', None),
-                                             ('name CA', None),
-                                             ('name CA', 'name CA')])
+    @pytest.mark.parametrize(
+        "mobile, ref", [("all", None), ("name CA", None), ("name CA", "name CA")]
+    )
     def test_input_combination_strict(self, u, mobile, ref):
         m, r = util.mda.parse_common_selection(u, mobile, ref, strict=True)
         assert m.universe != r.universe
@@ -87,8 +89,7 @@ class TestParseCommonSelection:
             util.mda.parse_common_selection(u, u2.atoms.CA)
 
         with pytest.raises(RuntimeError):
-            util.mda.parse_common_selection(u, 'all', 'name CA')
+            util.mda.parse_common_selection(u, "all", "name CA")
 
         with pytest.raises(RuntimeError):
-            util.mda.parse_common_selection(u, 'bynum 1-3', 'bynum 2-4',
-                                            strict=True)
+            util.mda.parse_common_selection(u, "bynum 1-3", "bynum 2-4", strict=True)

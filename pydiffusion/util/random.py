@@ -62,5 +62,5 @@ def random_walk(n_dim, n_frames, random_state=None):
     """
     random_state = check_random_state(random_state)
     trj = random_state.uniform(low=-1, high=1, size=(n_frames, n_dim))
-    trj = np.array(trj, order='F', dtype=np.double)
+    trj = np.array(trj, order="F", dtype=np.double)
     return trj.cumsum(0)
