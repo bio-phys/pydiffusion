@@ -15,10 +15,10 @@ setup(
     version="1.0dev",
     license="GPLv3",
     install_requires=[
-        "numpy<1.25",
+        "numpy",
         "numba",
-        "MDAnalysis<2.8",
-        "MDAnalysisTests<2.8",
+        "MDAnalysis",
+        "MDAnalysisTests",
         "joblib",
         "scipy",
         "six",
