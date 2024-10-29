@@ -188,12 +188,19 @@ class ParticleCS(AnalysisBase):
         # of the start and step
         # TODO: still correct if we use step argument?
         self.start = self.step
-
         self._dx = [[0, 0, 0]]
         self._trajectory[self.start - self.step]
         self._pos_prev = self._mobile.positions.copy()
+
+        # now I have to recreate the trajectory slice as we modified start
+        slicer = slice(self.start, self.stop, self.step)
+        self._sliced_trajectory = self._trajectory[slicer]
+
         # I'm analysing one frame more then `_setup_frames` thinks
-        self.n_frames += 1
+        # FXME: this probably messes with the frame info tooling in mda
+        self.n_frames = len(self._sliced_trajectory) + 1
+        self.frames = np.zeros(self.n_frames, dtype=int)
+        self.times = np.zeros(self.n_frames)
 
     def _single_frame(self):
         pos = self._mobile.positions.copy()

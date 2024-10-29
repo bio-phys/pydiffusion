@@ -17,8 +17,8 @@ setup(
     install_requires=[
         "numpy<1.25",
         "numba",
-        "MDAnalysis<2.1",
-        "MDAnalysisTests<2.1",
+        "MDAnalysis<2.4",
+        "MDAnalysisTests<2.4",
         "joblib",
         "scipy",
         "six",

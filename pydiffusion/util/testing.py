@@ -39,10 +39,3 @@ class TestDataDir(object):
             raise RuntimeError(
                 "no file '{}' found in folder '{}'".format(file, self.folder)
             )
-
-
-@pytest.fixture
-def data(request):
-    """access test directory in a pytest. This works independent of where tests are
-    started"""
-    return TestDataDir(request.fspath.dirname, "data")
