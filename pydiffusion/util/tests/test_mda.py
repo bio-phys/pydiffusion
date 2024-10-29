@@ -77,16 +77,16 @@ class TestParseCommonSelection:
         assert m.n_atoms == r.n_atoms
 
     def test_with_atomgroups(self, u):
-        ca = u.atoms.CA
+        ca = u.select_atoms("name CA")
         util.mda.parse_common_selection(u, ca)
         util.mda.parse_common_selection(u, ca, ca)
         u2 = mda.Universe(PSF, DCD)
-        util.mda.parse_common_selection(u, ca, u2.atoms.CA)
+        util.mda.parse_common_selection(u, ca, u2.select_atoms("name CA"))
 
     def test_exceptions(self, u):
         with pytest.raises(RuntimeError):
             u2 = mda.Universe(PSF, DCD)
-            util.mda.parse_common_selection(u, u2.atoms.CA)
+            util.mda.parse_common_selection(u, u2.select_atoms("name CA"))
 
         with pytest.raises(RuntimeError):
             util.mda.parse_common_selection(u, "all", "name CA")

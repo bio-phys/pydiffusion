@@ -172,14 +172,6 @@ class ParticleCS(AnalysisBase):
         start/stop/step : int
             trajectory indexing
         """
-        # The run() method should start one frame after start since I need the
-        # first frame for setting up the analysis. So do some manual conversion
-        # of the start and step
-        if "start" not in kwargs:
-            kwargs["start"] = 1
-        # TODO: check correct beginning frame with the step
-        if "step" in kwargs:
-            kwargs["start"] += kwargs["step"]
         super(ParticleCS, self).__init__(mobile.universe.trajectory, **kwargs)
 
         self._mobile, self._ref = parse_common_selection(
@@ -191,6 +183,12 @@ class ParticleCS(AnalysisBase):
             self._rotation = np.asarray(rotation)
 
     def _prepare(self):
+        # The run() method should start one frame after start since I need the
+        # first frame for setting up the analysis. So do some manual conversion
+        # of the start and step
+        # TODO: still correct if we use step argument?
+        self.start = self.step
+
         self._dx = [[0, 0, 0]]
         self._trajectory[self.start - self.step]
         self._pos_prev = self._mobile.positions.copy()
