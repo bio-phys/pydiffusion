@@ -8,3 +8,4 @@ dist
 htmlcov
 .coverage
 *.c
+.venv
