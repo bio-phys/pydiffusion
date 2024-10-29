@@ -18,8 +18,10 @@ INSTALL
 .. code::
    pip install .
 
-If you want to install the library locally for your user then append the ``--user``
+If you want to install the library locally for your user then append the ``-e``
 flag.
+
+For reference the requirements.txt shows the dependencies we used to run the testsuite
 
 Usage
 =====
