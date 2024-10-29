@@ -34,7 +34,7 @@ def _acf(x, nlags, demean=True, norm=True, for_pandas=False):
     d = nobs - np.arange(nobs)
     # ensure that we always use a power of 2 or 3 for zero-padding,
     # this way we'll ensure O(n log n) runtime of the fft.
-    n = fftpack.helper.next_fast_len(2 * nobs + 1)
+    n = fftpack.next_fast_len(2 * nobs + 1)
 
     Frf = fftpack.fft(x, n=n)
     ac = fftpack.ifft(Frf * np.conjugate(Frf))[:nobs] / d

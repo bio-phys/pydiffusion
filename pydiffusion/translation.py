@@ -181,8 +181,6 @@ class ParticleCS(AnalysisBase):
         if "step" in kwargs:
             kwargs["start"] += kwargs["step"]
         super(ParticleCS, self).__init__(mobile.universe.trajectory, **kwargs)
-        # I'm analysing one frame more then `_setup_frames` thinks
-        self.n_frames += 1
 
         self._mobile, self._ref = parse_common_selection(
             mobile.universe, mobile, reference
@@ -196,6 +194,8 @@ class ParticleCS(AnalysisBase):
         self._dx = [[0, 0, 0]]
         self._trajectory[self.start - self.step]
         self._pos_prev = self._mobile.positions.copy()
+        # I'm analysing one frame more then `_setup_frames` thinks
+        self.n_frames += 1
 
     def _single_frame(self):
         pos = self._mobile.positions.copy()

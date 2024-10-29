@@ -85,11 +85,11 @@ def test_read_diffusion_tensor(data):
             [1.652e-02, -8.636e-03, -4.427e-03, 4.468e06, -1.584e06, 2.503e07],
         ]
     )
-    tensor = hydropro.read_diffusion_tensor(data["hydropro-res.txt"])
+    tensor = hydropro.read_diffusion_tensor((data / "hydropro-res.txt").as_posix())
     assert_almost_equal(res_tensor, tensor)
 
 
 def test_read_center_of_diffusion(data):
     res_cd = np.array([1.994e-07, 1.728e-07, 2.292e-07])
-    cd = hydropro.read_center_of_diffusion(data["hydropro-res.txt"])
+    cd = hydropro.read_center_of_diffusion((data / "hydropro-res.txt").as_posix())
     assert_almost_equal(res_cd, cd)

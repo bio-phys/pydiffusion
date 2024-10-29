@@ -20,6 +20,7 @@
 import numpy as np
 import MDAnalysis as mda
 from collections import namedtuple
+from pathlib import Path
 
 import pytest
 from numpy.testing import assert_almost_equal

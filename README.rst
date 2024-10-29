@@ -13,11 +13,10 @@ diffusion of molecules in molecular dynamics simulation or rigid body simulation
 
 INSTALL
 =======
-**Note**: You need cython and numpy to install pydiffusion
+**Note**: You need cython, numpy and setuptools to install pydiffusion
 
 .. code::
-
-   python setup.py install
+   pip install .
 
 If you want to install the library locally for your user then append the ``--user``
 flag.
@@ -36,10 +35,10 @@ References
 DEVELOPMENT
 ===========
 
-To install the library in development mode use
+To install the library in development mode and it's own venv use
 
 .. code::
-   python setup.py develop --user
+   make develop
 
 This will create a python-package-symlink to this folder and every change you
 make is directly applied to your installed package.

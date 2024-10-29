@@ -19,6 +19,7 @@
 # along with pydiffusion.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import, division
 from six.moves import range, zip
+from pathlib import Path
 
 import numpy as np
 import MDAnalysis as mda

@@ -144,7 +144,7 @@ def rcf(t, D, v_body, rank=2):
     if rank == 1:
         a = v_body**2
         # D_y + D_z and all the other combinations of 2 components of D
-        r = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=np.float)
+        r = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=float)
         tau = 1.0 / np.dot(r, D)
         return np.sum(a * np.exp(-t[:, np.newaxis] / tau), axis=1)
     elif rank == 2:
@@ -361,7 +361,7 @@ class RotationMatrix(AnalysisBase):
 
     def _prepare(self):
         self.R = []
-        self.frames = []
+        self._frames = []
         # store the rotation matrix to the reference. This way it is later
         # possible to move all other frames into the coordinate system of the
         # reference
@@ -377,11 +377,11 @@ class RotationMatrix(AnalysisBase):
             # self._mobile.translate(-self._mobile.center_of_geometry())
             self._mobile.rotate(self._first_rot, self._mobile.center_of_geometry())
         self.R.append(rotation_matrix(self._ref, self._mobile, self._weights))
-        self.frames.append(self._mobile.universe.trajectory.frame)
+        self._frames.append(self._mobile.universe.trajectory.frame)
 
     def _conclude(self):
         self.R = np.asarray(self.R)
-        self.frames = np.asarray(self.frames)
+        self.frames = np.asarray(self._frames)
 
 
 def is_right_handed(M):
@@ -556,7 +556,7 @@ def quaternion_covariance(R, t, step=None, n_jobs=1, **kwargs):
     return np.asarray(u)
 
 
-@jit
+# @jit
 def chi2(obs, model, time=None):
     """chi2 function for comparing two quaternion correlation functions
 
@@ -704,7 +704,7 @@ def moment_2(time, model):
 
 
 # TODO: Implement in cython for inclusion in MDAnalysis
-@jit(nopython=True)
+@jit()
 def _change_frame_m4(m4, R):
     """rotate the 4th moment into the right coordinate system. this gets super fast
     thanks to numba"""
