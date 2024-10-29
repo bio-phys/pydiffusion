@@ -807,9 +807,9 @@ def tau_laplace(uu, time, s):
     mat = (4 * uu - np.eye(3)[:, :, np.newaxis]) * np.exp(-time * s)
 
     t = np.zeros((3, 3))
-    t[0, 0] = integrate.simps(mat[0, 0], x=time)
+    t[0, 0] = integrate.simpson(mat[0, 0], x=time)
     for i, j in itertools.combinations_with_replacement(range(3), 2):
-        t[i, j] = integrate.simps(mat[i, j], x=time)
+        t[i, j] = integrate.simpson(mat[i, j], x=time)
 
     return t + np.triu(t, 1).T
 

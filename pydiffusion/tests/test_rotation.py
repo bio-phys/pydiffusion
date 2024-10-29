@@ -214,7 +214,7 @@ def test_RotationMatrix_with_weights(curve):
 def test_RotationMatrix_with_alignment(curve, curve_rotated):
     # test more alignments
     rm_ref = rot.RotationMatrix(curve.atoms, align_first_to_ref=False).run()
-    rm = rot.RotationMatrix(curve.atoms, start=2, align_first_to_ref=True).run()
+    rm = rot.RotationMatrix(curve.atoms, align_first_to_ref=True).run(start=2)
     # this checks for sure if my rotation to first is correct
     assert_almost_equal(rm._first_rot.T, rm_ref.R[2].T, decimal=4)
 
@@ -249,7 +249,7 @@ def test_RotationMatrix_with_reference(curve, curve_rotated):
 
 def test_RotationMatrix_iterations(curve):
     # This is to test against MDAnalysis bug #1031
-    rm = rot.RotationMatrix(curve.atoms, stop=5, align_first_to_ref=False).run()
+    rm = rot.RotationMatrix(curve.atoms, align_first_to_ref=False).run(stop=5)
     rm = rot.RotationMatrix(curve.atoms, align_first_to_ref=True).run()
     assert_almost_equal(rm._first_rot, np.eye(3))
 

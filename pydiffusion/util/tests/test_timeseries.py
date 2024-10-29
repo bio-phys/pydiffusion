@@ -77,14 +77,14 @@ def test_acf_1d(trigonometric, nlags):
 
 @pytest.mark.parametrize("nlags", [100, None])
 def test_acf_2d(trigonometric, nlags):
-    sin = np.vstack((trigonometric.sin for _ in range(5)))
+    sin = np.vstack(list(trigonometric.sin for _ in range(5)))
     _acf = timeseries.acf(sin, row_var=True, nlags=nlags)
 
     # calculate default nlags
     if nlags is None:
         nlags = int(0.1 * (len(trigonometric.t) / 2 - 1))
 
-    cos = np.vstack((trigonometric.cos[:nlags] for _ in range(5)))
+    cos = np.vstack(list(trigonometric.cos[:nlags] for _ in range(5)))
 
     assert_equal(_acf.shape, (5, nlags))
     assert_almost_equal(_acf[:, 0], np.ones(5))
@@ -93,10 +93,10 @@ def test_acf_2d(trigonometric, nlags):
 
 def test_acf_col_var(trigonometric):
     nlags = 100
-    sin = np.vstack((trigonometric.sin for _ in range(5)))
+    sin = np.vstack(list(trigonometric.sin for _ in range(5)))
     _acf = timeseries.acf(sin.T, row_var=False, nlags=nlags)
 
-    cos = np.vstack((trigonometric.cos[:nlags] for _ in range(5)))
+    cos = np.vstack(list(trigonometric.cos[:nlags] for _ in range(5)))
 
     assert_equal(_acf.shape, (nlags, 5))
     assert_almost_equal(_acf[0, :], np.ones(5))
@@ -105,14 +105,14 @@ def test_acf_col_var(trigonometric):
 
 @pytest.mark.parametrize("nlags", [100, None])
 def test_acf_DataFrame(trigonometric, nlags):
-    sin = pd.DataFrame(np.vstack((trigonometric.sin for _ in range(5))).T)
+    sin = pd.DataFrame(np.vstack(list(trigonometric.sin for _ in range(5))).T)
     _acf = timeseries.acf(sin, nlags=nlags)
 
     # calculate default nlags
     if nlags is None:
         nlags = int(0.1 * (len(trigonometric.t) / 2 - 1))
 
-    cos = np.vstack((trigonometric.cos[:nlags] for _ in range(5))).T
+    cos = np.vstack(list(trigonometric.cos[:nlags] for _ in range(5))).T
 
     assert_equal(_acf.shape, (nlags, 5))
     assert_almost_equal(_acf.iloc[0], np.ones(5))
