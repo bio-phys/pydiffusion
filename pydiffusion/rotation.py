@@ -18,9 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pydiffusion.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import, division, print_function
-from six.moves import range
 
-from six import string_types
 import itertools
 import warnings
 from MDAnalysis.analysis import align
@@ -180,7 +178,7 @@ def tau_1(D, v_body="average"):
 
     Max Linke, Jürgen Köfinger, Gerhard Hummer (2017) in preparation
     """
-    if isinstance(v_body, string_types) and v_body == "average":
+    if isinstance(v_body, str) and v_body == "average":
         el1 = 1 / (3 * D[1] * (1 + D[2] / D[1]))
         el2 = 1 / (3 * D[0] * (1 + D[2] / D[0]))
         el3 = 1 / (3 * D[0] * (1 + D[1] / D[0]))
@@ -221,9 +219,7 @@ def tau_2(D, v_body="average"):
     Max Linke, Jürgen Finger, Gerhard Hummer (2017) in preparation
     """
     # catch isotropic case here because equation doesn't divide by 0 in this case
-    if (isinstance(v_body, string_types) and v_body == "average") or D[0] == D[1] == D[
-        2
-    ]:
+    if (isinstance(v_body, str) and v_body == "average") or D[0] == D[1] == D[2]:
         DD = _D(D)
         tau = np.sum([1 / (DD + d) for d in D]) + np.sum(D) / (
             D[0] * D[1] + D[1] * D[2] + D[2] * D[0]
@@ -354,7 +350,7 @@ class RotationMatrix(AnalysisBase):
         self._mobile, self._ref = parse_common_selection(
             mobile.universe, mobile, ref=ref
         )
-        if isinstance(weights, string_types) and weights == "mass":
+        if isinstance(weights, str) and weights == "mass":
             weights = self._ref.masses
         self._weights = weights
         self._align_first_to_ref = align_first_to_ref

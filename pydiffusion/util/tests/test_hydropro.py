@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with pydiffusion.  If not, see <http://www.gnu.org/licenses/>.
 import numpy as np
-from six.moves import zip
 from os.path import join as pjoin
 
 from numpy.testing import assert_almost_equal

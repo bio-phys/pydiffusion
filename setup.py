@@ -17,11 +17,10 @@ setup(
     install_requires=[
         "numpy",
         "numba",
-        "MDAnalysis",
-        "MDAnalysisTests",
+        "MDAnalysis>=2.3",
+        "MDAnalysisTests>=2.3",
         "joblib",
         "scipy",
-        "six",
         "pandas",
         "pytest",
     ],
