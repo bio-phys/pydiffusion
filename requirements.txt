@@ -15,8 +15,9 @@ joblib==1.4.2
 kiwisolver==1.4.7
 llvmlite==0.43.0
 matplotlib==2.1.2
-MDAnalysis==2.3.0
-MDAnalysisTests==2.3.0
+mda-xdrlib==0.2.0
+MDAnalysis==2.7.0
+MDAnalysisTests==2.7.0
 mmtf-python==1.1.3
 mock==5.1.0
 mrcfile==1.5.3
