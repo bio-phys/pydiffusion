@@ -8,3 +8,5 @@ dist
 htmlcov
 .coverage
 *.c
+*.lock
+.venv

@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with pydiffusion.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import, division
-from six.moves import range, zip
 
 import numpy as np
 import MDAnalysis as mda
@@ -32,12 +31,11 @@ from numpy.testing import assert_equal, assert_almost_equal
 from scipy.special import legendre
 
 import pydiffusion.rotation as rot
-from pydiffusion.util.testing import data
 
 
 def test__D():
     D = np.arange(1, 4)
-    assert_equal(2., rot._D(D))
+    assert_equal(2.0, rot._D(D))
 
 
 def test_delta():
@@ -55,23 +53,29 @@ def test_delta():
 
 def test__F():
     v = np.eye(3)[0]
-    assert_almost_equal(2. / 3., rot._F(v))
+    assert_almost_equal(2.0 / 3.0, rot._F(v))
 
 
 def test__G():
     v = np.eye(3)[0]
     D = np.arange(1, 4)
-    assert_almost_equal(-1. / np.sqrt(3), rot._G(v, D))
+    assert_almost_equal(-1.0 / np.sqrt(3), rot._G(v, D))
 
 
 def test__aa():
     v = np.eye(3)[0]
     D = np.arange(1, 4)
     aa = rot._aa(v, D)
-    assert_almost_equal(aa, [
-        3 / 4 * (2 / 3 + (-1 / np.sqrt(3))), 0, 0, 0,
-        3 / 4 * (2 / 3 - (-1 / np.sqrt(3)))
-    ])
+    assert_almost_equal(
+        aa,
+        [
+            3 / 4 * (2 / 3 + (-1 / np.sqrt(3))),
+            0,
+            0,
+            0,
+            3 / 4 * (2 / 3 - (-1 / np.sqrt(3))),
+        ],
+    )
 
 
 def test_p_l():
@@ -110,9 +114,15 @@ def test_rcf_rank_2():
 
     for i, ax in enumerate(axes):
         rcf = rot.rcf(t, D, ax, rank=2)
-        theo_rcf = (3. / 2. * np.exp(-6 * Dr * t) *
-                    (2. / 3. * np.cosh(2 * delta * t) +
-                     (D[i] - Dr) / delta * np.sinh(2 * delta * t)))
+        theo_rcf = (
+            3.0
+            / 2.0
+            * np.exp(-6 * Dr * t)
+            * (
+                2.0 / 3.0 * np.cosh(2 * delta * t)
+                + (D[i] - Dr) / delta * np.sinh(2 * delta * t)
+            )
+        )
         assert_equal(len(rcf), 1000)
         assert_almost_equal(rcf, theo_rcf)
 
@@ -154,17 +164,20 @@ def curve(data):
     #         s.translate(trans)
     #         trans = np.dot(trans, rot.T)
     #         w.write(s)
-    u = mda.Universe(data['curve.pdb'], data['curve.xtc'])
+    u = mda.Universe(data["curve.pdb"], data["curve.xtc"])
     n_frames = u.trajectory.n_frames - 1
-    return namedtuple('TT', 'atoms, rot')(
-        u.atoms, mda.lib.transformations.rotation_matrix(
-            2 * np.pi / n_frames, (0, 0, 1))[:3, :3])
+    return namedtuple("TT", "atoms, rot")(
+        u.atoms,
+        mda.lib.transformations.rotation_matrix(2 * np.pi / n_frames, (0, 0, 1))[
+            :3, :3
+        ],
+    )
 
 
 @pytest.fixture
 def curve_rotated(data):
     # added random rotation to a frame in curve
-    return mda.Universe(data['curve-rotated.pdb'])
+    return mda.Universe(data["curve-rotated.pdb"])
 
 
 def test_RotationMatrix(curve):
@@ -173,8 +186,9 @@ def test_RotationMatrix(curve):
         refR = np.linalg.matrix_power(curve.rot.T, i)
         assert_almost_equal(R, refR.T, decimal=3)
 
-    u2 = mda.Universe(curve.atoms.universe.filename,
-                      curve.atoms.universe.trajectory.filename)
+    u2 = mda.Universe(
+        curve.atoms.universe.filename, curve.atoms.universe.trajectory.filename
+    )
 
     for R, ts in zip(rm.R, curve.atoms.universe.trajectory):
         curve.atoms.translate(-curve.atoms.center_of_geometry())
@@ -188,7 +202,8 @@ def test_RotationMatrix_with_weights(curve):
     weights = np.zeros(n_atoms)
     weights[:10] = 1 / 10.0
     rm = rot.RotationMatrix(
-        curve.atoms, weights=weights, align_first_to_ref=False).run()
+        curve.atoms, weights=weights, align_first_to_ref=False
+    ).run()
     for i, R in enumerate(rm.R):
         refR = np.linalg.matrix_power(curve.rot, i)
         assert_almost_equal(R, refR, decimal=3)
@@ -197,18 +212,18 @@ def test_RotationMatrix_with_weights(curve):
 def test_RotationMatrix_with_alignment(curve, curve_rotated):
     # test more alignments
     rm_ref = rot.RotationMatrix(curve.atoms, align_first_to_ref=False).run()
-    rm = rot.RotationMatrix(
-        curve.atoms, start=2, align_first_to_ref=True).run()
+    rm = rot.RotationMatrix(curve.atoms, align_first_to_ref=True).run(start=2)
     # this checks for sure if my rotation to first is correct
     assert_almost_equal(rm._first_rot.T, rm_ref.R[2].T, decimal=4)
 
     # check if we can reconstruct the rotations from a different starting point
-    for i, (R, R_ref) in enumerate(zip(rm.R, rm_ref.R[rm.start:])):
+    for i, (R, R_ref) in enumerate(zip(rm.R, rm_ref.R[rm.start :])):
         assert_almost_equal(np.dot(rm._first_rot, R), R_ref, decimal=4)
 
     # test more specific
     rm = rot.RotationMatrix(
-        curve.atoms, ref=curve_rotated.atoms, align_first_to_ref=True).run()
+        curve.atoms, ref=curve_rotated.atoms, align_first_to_ref=True
+    ).run()
     assert_almost_equal(rm.R[0], np.eye(3))
     R_first = rot.rotation_matrix(curve.atoms, curve_rotated.atoms)
     assert_almost_equal(R_first.T, rm._first_rot)
@@ -223,7 +238,8 @@ def test_RotationMatrix_with_alignment(curve, curve_rotated):
 
 def test_RotationMatrix_with_reference(curve, curve_rotated):
     rm = rot.RotationMatrix(
-        curve.atoms, ref=curve_rotated.atoms, align_first_to_ref=False).run()
+        curve.atoms, ref=curve_rotated.atoms, align_first_to_ref=False
+    ).run()
     curve.atoms.universe.trajectory[0]
     r = rot.rotation_matrix(curve_rotated.atoms, curve.atoms)
     assert_almost_equal(rm.R[0], r)
@@ -231,24 +247,25 @@ def test_RotationMatrix_with_reference(curve, curve_rotated):
 
 def test_RotationMatrix_iterations(curve):
     # This is to test against MDAnalysis bug #1031
-    rm = rot.RotationMatrix(
-        curve.atoms, stop=5, align_first_to_ref=False).run()
+    rm = rot.RotationMatrix(curve.atoms, align_first_to_ref=False).run(stop=5)
     rm = rot.RotationMatrix(curve.atoms, align_first_to_ref=True).run()
     assert_almost_equal(rm._first_rot, np.eye(3))
 
 
 def test_cos_t():
     axis = [0, 0, 1]
-    R = np.array([
-        mda.lib.transformations.rotation_matrix(i * 5, axis)[:3, :3]
-        for i in range(10)
-    ])
+    R = np.array(
+        [
+            mda.lib.transformations.rotation_matrix(i * 5, axis)[:3, :3]
+            for i in range(10)
+        ]
+    )
     cost = rot.cos_t(R, [1, 0, 0])
-    assert_equal(cost.shape, (10, ))
+    assert_equal(cost.shape, (10,))
     assert_almost_equal(cost, np.cos(np.arange(10) * 5))
 
 
-@pytest.mark.filterwarnings('ignore:invalid value')
+@pytest.mark.filterwarnings("ignore:invalid value")
 def test_make_right_handed():
     M = np.eye(3)
     M[:, 0] *= -1
@@ -262,8 +279,11 @@ def test_make_right_handed():
 
 
 def test_pcs():
-    D = [[24660000., -1917000., 4468000.], [-1917000., 21630000., -1584000.],
-         [4468000., -1584000., 25030000.]]
+    D = [
+        [24660000.0, -1917000.0, 4468000.0],
+        [-1917000.0, 21630000.0, -1584000.0],
+        [4468000.0, -1584000.0, 25030000.0],
+    ]
     Dpcs, toPCS = rot.pcs(D)
     # more checks don't make sense because I would only check that np.linalg.eig
     # works correct, that is something I want to assume already
@@ -275,14 +295,14 @@ def rotations(curve):
     return rot.RotationMatrix(curve.atoms, align_first_to_ref=False).run().R
 
 
-@pytest.mark.parametrize('t', [-1, 1.4, 1001])
+@pytest.mark.parametrize("t", [-1, 1.4, 1001])
 def test_rotations_at_t_exceptions_t(t):
     R = transformations.random_rotation_matrix()[:3, :3][np.newaxis]
     with pytest.raises(ValueError):
         rot.rotations_at_t(R, t)
 
 
-@pytest.mark.parametrize('shape', [(3, 3), (2, 3, 4), (2, 4, 3), (1, 3, 3)])
+@pytest.mark.parametrize("shape", [(3, 3), (2, 3, 4), (2, 4, 3), (1, 3, 3)])
 def test_rotations_at_t_exceptions_R_shape(shape):
     R = np.arange(np.prod(shape)).reshape(shape)
     with pytest.raises(ValueError):
@@ -295,7 +315,7 @@ def test_rotations_at_t_0(rotations):
         assert_almost_equal(r, np.eye(3))
 
 
-@pytest.mark.parametrize('t', range(5))
+@pytest.mark.parametrize("t", range(5))
 def test_rotations_at_t(rotations, t):
     R = rot.rotations_at_t(rotations, t)
     assert R.shape == (len(rotations) - t, 3, 3)
@@ -338,7 +358,7 @@ def test_rotations_covariance(rotations):
     assert_almost_equal(u, cov)
 
 
-@pytest.mark.parametrize('n_jobs', [1, 2])
+@pytest.mark.parametrize("n_jobs", [1, 2])
 def test_rotation_correlations(rotations, n_jobs):
     u = rot.quaternion_covariance(rotations, 20, n_jobs=n_jobs)
     assert u.shape == (20, 4, 4)
@@ -347,24 +367,56 @@ def test_rotation_correlations(rotations, n_jobs):
 @pytest.fixture
 def params():
     dt = 10e-9  # 1 nano second
-    msdq = np.array([[
-        0., 0.11424535, 0.17804407, 0.21315337, 0.23210453, 0.24206588,
-        0.24710393, 0.24950183, 0.25052477, 0.25086202
-    ], [
-        0., 0.08339403, 0.13911204, 0.17627704, 0.20103169, 0.21750017,
-        0.2284448, 0.23571197, 0.2405337, 0.24373084
-    ], [
-        0., 0.08569921, 0.1418894, 0.17878675, 0.20304756, 0.21901818,
-        0.22954219, 0.23648325, 0.24106472, 0.24409074
-    ]])
+    msdq = np.array(
+        [
+            [
+                0.0,
+                0.11424535,
+                0.17804407,
+                0.21315337,
+                0.23210453,
+                0.24206588,
+                0.24710393,
+                0.24950183,
+                0.25052477,
+                0.25086202,
+            ],
+            [
+                0.0,
+                0.08339403,
+                0.13911204,
+                0.17627704,
+                0.20103169,
+                0.21750017,
+                0.2284448,
+                0.23571197,
+                0.2405337,
+                0.24373084,
+            ],
+            [
+                0.0,
+                0.08569921,
+                0.1418894,
+                0.17878675,
+                0.20304756,
+                0.21901818,
+                0.22954219,
+                0.23648325,
+                0.24106472,
+                0.24409074,
+            ],
+        ]
+    )
 
     Params = namedtuple("Params", "model, dt, t, msdq")
     return Params(
         model=rot.RotationTensor(
-            np.asarray([30042854.0, 20255914.0, 21021232.0]), np.eye(3)),
+            np.asarray([30042854.0, 20255914.0, 21021232.0]), np.eye(3)
+        ),
         dt=dt,
         t=np.arange(10) * dt,
-        msdq=msdq)
+        msdq=msdq,
+    )
 
 
 def test_quaternion_correlations(params):
@@ -396,7 +448,7 @@ def test_RotationTensor_tensor():
     assert_almost_equal(R * D, T.tensor)
 
 
-@pytest.mark.parametrize('start, stop, step', ((1, 10, 2), (10, 1, -2)))
+@pytest.mark.parametrize("start, stop, step", ((1, 10, 2), (10, 1, -2)))
 def test_inf_generator(start, stop, step):
     gen = rot.inf_generator(start, stop, step)
     assert next(gen) == start
@@ -406,7 +458,7 @@ def test_inf_generator(start, stop, step):
     assert next(gen) == stop
 
 
-@pytest.mark.parametrize('D', [np.arange(1, 4), np.ones(3)])
+@pytest.mark.parametrize("D", [np.arange(1, 4), np.ones(3)])
 def test_chi2(D):
     D = D * 1e-3
     dt = 1
@@ -417,7 +469,7 @@ def test_chi2(D):
     assert_almost_equal(0, rot.chi2(moment2, tensor))
 
 
-@pytest.mark.parametrize('D', [np.arange(3, 0, -1), np.ones(3)])
+@pytest.mark.parametrize("D", [np.arange(3, 0, -1), np.ones(3)])
 def test_laplace_fit(D):
     D = D * 1e-3
     dt = 1
@@ -428,8 +480,8 @@ def test_laplace_fit(D):
     assert_almost_equal(result.D, D, decimal=4)
 
 
-@pytest.mark.filterwarnings('ignore::RuntimeWarning')
-@pytest.mark.parametrize('D', [np.arange(3, 0, -1), np.ones(3)])
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+@pytest.mark.parametrize("D", [np.arange(3, 0, -1), np.ones(3)])
 def test_anneal(D):
     D = D * 1e-3
     dt = 1

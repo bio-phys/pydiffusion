@@ -18,14 +18,11 @@
 # You should have received a copy of the GNU General Public License
 # along with pydiffusion.  If not, see <http://www.gnu.org/licenses/>.
 import numpy as np
-from six.moves import zip
 from os.path import join as pjoin
-import pytest
 
 from numpy.testing import assert_almost_equal
 
 from pydiffusion.util import hydropro
-from pydiffusion.util.testing import data
 
 
 def test_config():
@@ -45,8 +42,7 @@ foo                               !name for output file
 0,                                   !n_trials for mc calculation of covolume
 1                                    !idif=1 (yes) for full diffusion tensors
 """
-    c = hydropro.config('6LYZ.pdb', name='foo', radius=2, temperatur=303,
-                        viscosity=1)
+    c = hydropro.config("6LYZ.pdb", name="foo", radius=2, temperatur=303, viscosity=1)
     assert res == c
 
 
@@ -67,10 +63,10 @@ def test_write_config(tmpdir):
 0,                                   !n_trials for mc calculation of covolume
 1                                    !idif=1 (yes) for full diffusion tensors
 *                                    !EOF
-""".split('\n')
-    c = hydropro.config('6LYZ.pdb')
+""".split("\n")
+    c = hydropro.config("6LYZ.pdb")
     hydropro.write_config(c, tmpdir.dirname)
-    with open(pjoin(tmpdir.dirname, 'hydropro.dat')) as f:
+    with open(pjoin(tmpdir.dirname, "hydropro.dat")) as f:
         lines = f.readlines()
 
     for r, l in zip(res, lines):
@@ -79,17 +75,20 @@ def test_write_config(tmpdir):
 
 def test_read_diffusion_tensor(data):
     res_tensor = np.array(
-        [[ 1.165E-06,-1.519E-08, 5.281E-08, 1.044E-02, 2.228E-02, 1.652E-02],
-         [-1.520E-08, 1.146E-06,-1.588E-08, 2.228E-02,-1.056E-03,-8.636E-03],
-         [ 5.281E-08,-1.588E-08, 1.180E-06, 1.651E-02,-8.644E-03,-4.427E-03],
-         [ 1.044E-02, 2.228E-02, 1.651E-02, 2.466E+07,-1.917E+06, 4.468E+06],
-         [ 2.228E-02,-1.056E-03,-8.644E-03,-1.917E+06, 2.163E+07,-1.584E+06],
-         [ 1.652E-02,-8.636E-03,-4.427E-03, 4.468E+06,-1.584E+06, 2.503E+07]])
-    tensor = hydropro.read_diffusion_tensor(data['hydropro-res.txt'])
+        [
+            [1.165e-06, -1.519e-08, 5.281e-08, 1.044e-02, 2.228e-02, 1.652e-02],
+            [-1.520e-08, 1.146e-06, -1.588e-08, 2.228e-02, -1.056e-03, -8.636e-03],
+            [5.281e-08, -1.588e-08, 1.180e-06, 1.651e-02, -8.644e-03, -4.427e-03],
+            [1.044e-02, 2.228e-02, 1.651e-02, 2.466e07, -1.917e06, 4.468e06],
+            [2.228e-02, -1.056e-03, -8.644e-03, -1.917e06, 2.163e07, -1.584e06],
+            [1.652e-02, -8.636e-03, -4.427e-03, 4.468e06, -1.584e06, 2.503e07],
+        ]
+    )
+    tensor = hydropro.read_diffusion_tensor(data["hydropro-res.txt"])
     assert_almost_equal(res_tensor, tensor)
 
 
 def test_read_center_of_diffusion(data):
-    res_cd = np.array([1.994E-07, 1.728E-07, 2.292E-07])
-    cd = hydropro.read_center_of_diffusion(data['hydropro-res.txt'])
+    res_cd = np.array([1.994e-07, 1.728e-07, 2.292e-07])
+    cd = hydropro.read_center_of_diffusion(data["hydropro-res.txt"])
     assert_almost_equal(res_cd, cd)

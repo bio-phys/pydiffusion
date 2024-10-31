@@ -18,9 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pydiffusion.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import, division, print_function
-from six.moves import range
 
-from six import string_types
 import itertools
 import warnings
 from MDAnalysis.analysis import align
@@ -52,14 +50,14 @@ def delta(D):
         anisotropy
     """
     D = np.asarray(D)
-    if D.shape != (3, ):
+    if D.shape != (3,):
         raise ValueError("D must be of shape (3,)")
     return np.sqrt(np.sum(D**2) - D[2] * D[1] - D[2] * D[0] - D[1] * D[0])
 
 
 def _F(mu):
     # See Garcia Paper
-    return -1. / 3. + np.sum(np.asarray(mu)**4)
+    return -1.0 / 3.0 + np.sum(np.asarray(mu) ** 4)
 
 
 def _G(mu, d):
@@ -67,9 +65,9 @@ def _G(mu, d):
     D = _D(d)
     dd = delta(d)
     mu = np.asarray(mu)
-    s = d[0] * (mu[0]**4 + 2 * mu[1]**2 * mu[2]**2)
-    s += d[1] * (mu[1]**4 + 2 * mu[2]**2 * mu[0]**2)
-    s += d[2] * (mu[2]**4 + 2 * mu[0]**2 * mu[1]**2)
+    s = d[0] * (mu[0] ** 4 + 2 * mu[1] ** 2 * mu[2] ** 2)
+    s += d[1] * (mu[1] ** 4 + 2 * mu[2] ** 2 * mu[0] ** 2)
+    s += d[2] * (mu[2] ** 4 + 2 * mu[0] ** 2 * mu[1] ** 2)
     return (-D + s) / dd
 
 
@@ -79,11 +77,11 @@ def _aa(mu, D):
     mu = np.asarray(mu)
     f = _F(mu)
     g = _G(mu, D)
-    aa[0] = .75 * (f + g)
-    aa[1] = 3 * np.prod(mu[1:]**2)
-    aa[2] = 3 * mu[0]**2 * mu[2]**2
-    aa[3] = 3 * np.prod(mu[:-1]**2)
-    aa[4] = .75 * (f - g)
+    aa[0] = 0.75 * (f + g)
+    aa[1] = 3 * np.prod(mu[1:] ** 2)
+    aa[2] = 3 * mu[0] ** 2 * mu[2] ** 2
+    aa[3] = 3 * np.prod(mu[:-1] ** 2)
+    aa[4] = 0.75 * (f - g)
     return aa
 
 
@@ -97,12 +95,12 @@ def _taus(D):
     tau[2] = 3 * (d + D[1])
     tau[3] = 3 * (d + D[0])
     tau[4] = 6 * d + 2 * _delta
-    return 1. / tau
+    return 1.0 / tau
 
 
 def _D(D):
     # See Garcia Paper
-    return np.sum(D) / 3.
+    return np.sum(D) / 3.0
 
 
 def rcf(t, D, v_body, rank=2):
@@ -144,19 +142,18 @@ def rcf(t, D, v_body, rank=2):
     if rank == 1:
         a = v_body**2
         # D_y + D_z and all the other combinations of 2 components of D
-        r = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=np.float)
-        tau = 1. / np.dot(r, D)
+        r = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=float)
+        tau = 1.0 / np.dot(r, D)
         return np.sum(a * np.exp(-t[:, np.newaxis] / tau), axis=1)
     elif rank == 2:
         aa = _aa(v_body, D)
         tau = _taus(D)
         return np.sum(aa * np.exp(-t[:, np.newaxis] / tau), axis=1)
     else:
-        raise NotImplementedError(
-            "only 1. and 2. order correlation are available")
+        raise NotImplementedError("only 1. and 2. order correlation are available")
 
 
-def tau_1(D, v_body='average'):
+def tau_1(D, v_body="average"):
     """Calculate analytical rotational correlation time of P_1
 
     Parameters
@@ -181,7 +178,7 @@ def tau_1(D, v_body='average'):
 
     Max Linke, Jürgen Köfinger, Gerhard Hummer (2017) in preparation
     """
-    if isinstance(v_body, string_types) and v_body == 'average':
+    if isinstance(v_body, str) and v_body == "average":
         el1 = 1 / (3 * D[1] * (1 + D[2] / D[1]))
         el2 = 1 / (3 * D[0] * (1 + D[2] / D[0]))
         el3 = 1 / (3 * D[0] * (1 + D[1] / D[0]))
@@ -190,11 +187,11 @@ def tau_1(D, v_body='average'):
         v_body = np.asarray(v_body, dtype=float)
         v_body /= np.linalg.norm(v_body)
         a = v_body**2
-        taus = 1. / np.array([D[1] + D[2], D[0] + D[2], D[0] + D[1]])
+        taus = 1.0 / np.array([D[1] + D[2], D[0] + D[2], D[0] + D[1]])
         return np.sum(a * taus)
 
 
-def tau_2(D, v_body='average'):
+def tau_2(D, v_body="average"):
     """Calculate analytical rotational correlation time of P_2
 
     Parameters
@@ -222,10 +219,11 @@ def tau_2(D, v_body='average'):
     Max Linke, Jürgen Finger, Gerhard Hummer (2017) in preparation
     """
     # catch isotropic case here because equation doesn't divide by 0 in this case
-    if (isinstance(v_body, string_types) and v_body == 'average') or D[0] == D[1] == D[2]:
+    if (isinstance(v_body, str) and v_body == "average") or D[0] == D[1] == D[2]:
         DD = _D(D)
         tau = np.sum([1 / (DD + d) for d in D]) + np.sum(D) / (
-            D[0] * D[1] + D[1] * D[2] + D[2] * D[0])
+            D[0] * D[1] + D[1] * D[2] + D[2] * D[0]
+        )
         return tau / 15
     else:
         v_body = np.asarray(v_body, dtype=float)
@@ -329,12 +327,9 @@ class RotationMatrix(AnalysisBase):
 
     """
 
-    def __init__(self,
-                 mobile,
-                 ref=None,
-                 weights=None,
-                 align_first_to_ref=True,
-                 **kwargs):
+    def __init__(
+        self, mobile, ref=None, weights=None, align_first_to_ref=True, **kwargs
+    ):
         """Parameters
         ----------
         mobile : mda.AtomGroup
@@ -351,40 +346,38 @@ class RotationMatrix(AnalysisBase):
             arguments to pass to AnalysisBase
 
         """
-        super(RotationMatrix, self).__init__(mobile.universe.trajectory,
-                                             **kwargs)
+        super(RotationMatrix, self).__init__(mobile.universe.trajectory, **kwargs)
         self._mobile, self._ref = parse_common_selection(
-            mobile.universe, mobile, ref=ref)
-        if isinstance(weights, string_types) and weights == 'mass':
+            mobile.universe, mobile, ref=ref
+        )
+        if isinstance(weights, str) and weights == "mass":
             weights = self._ref.masses
         self._weights = weights
         self._align_first_to_ref = align_first_to_ref
 
     def _prepare(self):
         self.R = []
-        self.frames = []
+        self._frames = []
         # store the rotation matrix to the reference. This way it is later
         # possible to move all other frames into the coordinate system of the
         # reference
         if self._align_first_to_ref:
             # reset trajectory frame to start
             self._trajectory[self.start]
-            self._first_rot = rotation_matrix(self._ref, self._mobile,
-                                              self._weights)
+            self._first_rot = rotation_matrix(self._ref, self._mobile, self._weights)
         else:
             self._first_rot = np.eye(3)
 
     def _single_frame(self):
         if self._align_first_to_ref:
             # self._mobile.translate(-self._mobile.center_of_geometry())
-            self._mobile.rotate(self._first_rot,
-                                self._mobile.center_of_geometry())
+            self._mobile.rotate(self._first_rot, self._mobile.center_of_geometry())
         self.R.append(rotation_matrix(self._ref, self._mobile, self._weights))
-        self.frames.append(self._mobile.universe.trajectory.frame)
+        self._frames.append(self._mobile.universe.trajectory.frame)
 
     def _conclude(self):
         self.R = np.asarray(self.R)
-        self.frames = np.asarray(self.frames)
+        self.frames = np.asarray(self._frames)
 
 
 def is_right_handed(M):
@@ -471,7 +464,7 @@ def rotations_at_t(R, t, step=None):
         raise ValueError("len(R) > 1, need more then one rotation matrix")
 
     # This results in R * R.T for an array of 3x3 matrices
-    einsum = 'kil,kjl->kji'
+    einsum = "kil,kjl->kji"
     if t == 0:
         return np.einsum(einsum, R[::step], R[::step])
     else:
@@ -497,8 +490,9 @@ def _quaternion_covariance(R, t, step=None):
         quaternion covariance
     """
     if not len(R) >= 2:
-        raise ValueError("len(R) needs to be greater then one to "
-                         " calculate a variance")
+        raise ValueError(
+            "len(R) needs to be greater then one to " " calculate a variance"
+        )
 
     # calculate mean rotation matrix t steps appart
     R = rotations_at_t(R, t, step).mean(0)
@@ -552,14 +546,13 @@ def quaternion_covariance(R, t, step=None, n_jobs=1, **kwargs):
     if n_jobs == 1:
         u = [_quaternion_covariance(R, i, step) for i in range(t)]
     else:
-        u = Parallel(
-            n_jobs=n_jobs, **kwargs)(delayed(_quaternion_covariance)(R, i,
-                                                                     step)
-                                     for i in range(t))
+        u = Parallel(n_jobs=n_jobs, **kwargs)(
+            delayed(_quaternion_covariance)(R, i, step) for i in range(t)
+        )
     return np.asarray(u)
 
 
-@jit
+@jit(forceobj=True)
 def chi2(obs, model, time=None):
     """chi2 function for comparing two quaternion correlation functions
 
@@ -593,7 +586,7 @@ def chi2(obs, model, time=None):
     for t in range(T):
         for i in range(3):
             for j in range(i, 3):
-                s += (ref[i, j, t] - obs[i, j, t])**2 / var[i, j, t]
+                s += (ref[i, j, t] - obs[i, j, t]) ** 2 / var[i, j, t]
 
     return s
 
@@ -601,7 +594,7 @@ def chi2(obs, model, time=None):
 class RotationTensor(object):
     def __init__(self, D, R):
         D = np.array(D)
-        if D.shape != (3, ):
+        if D.shape != (3,):
             raise ValueError("D shape should be (3,)")
         self._D = D
 
@@ -646,7 +639,7 @@ def sigma_rotation_tensor(a, b):
 
     D_a = _D_in_lab_frame(a.D, a.R)
     D_b = _D_in_lab_frame(b.D, b.R)
-    return np.linalg.norm(D_a - D_b, ord='fro')
+    return np.linalg.norm(D_a - D_b, ord="fro")
 
 
 def moment_2(time, model):
@@ -689,9 +682,9 @@ def moment_2(time, model):
             np.exp(D[0] * t) + np.exp(D[1] * t) + np.exp(D[2] * t),
             np.exp(D[0] * t) - np.exp(D[2] * t) - np.exp(D[1] * t),
             np.exp(D[1] * t) - np.exp(D[0] * t) - np.exp(D[2] * t),
-            np.exp(D[2] * t) - np.exp(D[1] * t) - np.exp(D[0] * t)
+            np.exp(D[2] * t) - np.exp(D[1] * t) - np.exp(D[0] * t),
         ]
-        return .25 * (1 + np.exp(-D.sum() * t)[np.newaxis, :] * b1)
+        return 0.25 * (1 + np.exp(-D.sum() * t)[np.newaxis, :] * b1)
 
     time = np.asarray(time)
     msd = _msd_q(model.D, time)
@@ -707,7 +700,7 @@ def moment_2(time, model):
 
 
 # TODO: Implement in cython for inclusion in MDAnalysis
-@jit(nopython=True)
+@jit()
 def _change_frame_m4(m4, R):
     """rotate the 4th moment into the right coordinate system. this gets super fast
     thanks to numba"""
@@ -718,30 +711,34 @@ def _change_frame_m4(m4, R):
             for j in range(3):
                 # sum_k q_k^4
                 for k in range(3):
-                    u4[i, j, t] += m4[k, k, t] * R[k, i]**2 * R[k, j]**2
+                    u4[i, j, t] += m4[k, k, t] * R[k, i] ** 2 * R[k, j] ** 2
                 # sum_{m<n}
                 for m in range(3):
                     for n in range(3):
                         if m < n:
                             u4[i, j, t] += m4[m, n, t] * (
-                                R[m, i]**2 * R[n, j]**2 +
-                                R[n, i]**2 * R[m, j]**2 +
-                                4 * R[m, i] * R[n, i] * R[m, j] * R[n, j])
+                                R[m, i] ** 2 * R[n, j] ** 2
+                                + R[n, i] ** 2 * R[m, j] ** 2
+                                + 4 * R[m, i] * R[n, i] * R[m, j] * R[n, j]
+                            )
 
     return u4
 
 
 def moment_4(time, model):
-    """4th moment quaternion term
-    """
+    """4th moment quaternion term"""
 
     def qiiii(D, t, ave_D, cosh, perm):
         """<q_i^4>"""
         mut_D = D[perm]
         expD = np.exp(-3 * ave_D * t) * (
-            np.exp(mut_D[0] * t) - np.exp(mut_D[1] * t) - np.exp(mut_D[2] * t))
-        exp3D = np.exp(-3 * ave_D * t) * (np.exp(-3 * mut_D[0] * t) - np.exp(
-            -3 * mut_D[1] * t) - np.exp(-3 * mut_D[2] * t))
+            np.exp(mut_D[0] * t) - np.exp(mut_D[1] * t) - np.exp(mut_D[2] * t)
+        )
+        exp3D = np.exp(-3 * ave_D * t) * (
+            np.exp(-3 * mut_D[0] * t)
+            - np.exp(-3 * mut_D[1] * t)
+            - np.exp(-3 * mut_D[2] * t)
+        )
         cosh = np.exp(-6 * ave_D * t) * cosh
         return 1 / 8 * (1 + 3 / 2 * expD + 1 / 2 * exp3D + cosh)
 
@@ -782,7 +779,7 @@ def moment_4(time, model):
 
 
 def tau_laplace(uu, time, s):
-    """ calculate tau matrix with Laplace transformation
+    """calculate tau matrix with Laplace transformation
 
     Parameters
     ----------
@@ -806,9 +803,9 @@ def tau_laplace(uu, time, s):
     mat = (4 * uu - np.eye(3)[:, :, np.newaxis]) * np.exp(-time * s)
 
     t = np.zeros((3, 3))
-    t[0, 0] = integrate.simps(mat[0, 0], x=time)
+    t[0, 0] = integrate.simpson(mat[0, 0], x=time)
     for i, j in itertools.combinations_with_replacement(range(3), 2):
-        t[i, j] = integrate.simps(mat[i, j], x=time)
+        t[i, j] = integrate.simpson(mat[i, j], x=time)
 
     return t + np.triu(t, 1).T
 
@@ -852,21 +849,24 @@ def fit_laplace(corr, time, s):
     vec = np.real(vec[:, idx_sort])
 
     D = np.empty(3)
-    D[0] = -1 / (val[0] + val[1]) + 1 / (val[1] + val[2]) - 1 / (
-        val[2] + val[0]) - s / 2.
-    D[1] = -1 / (val[0] + val[1]) - 1 / (val[1] + val[2]) + 1 / (
-        val[2] + val[0]) - s / 2.
-    D[2] = +1 / (val[0] + val[1]) - 1 / (val[1] + val[2]) - 1 / (
-        val[2] + val[0]) - s / 2.
+    D[0] = (
+        -1 / (val[0] + val[1]) + 1 / (val[1] + val[2]) - 1 / (val[2] + val[0]) - s / 2.0
+    )
+    D[1] = (
+        -1 / (val[0] + val[1]) - 1 / (val[1] + val[2]) + 1 / (val[2] + val[0]) - s / 2.0
+    )
+    D[2] = (
+        +1 / (val[0] + val[1]) - 1 / (val[1] + val[2]) - 1 / (val[2] + val[0]) - s / 2.0
+    )
 
     R = make_right_handed(vec)
     return RotationTensor(D, R.T)
 
 
 def metropolis(deltaE, beta):
-    """ metropolis acceptance criteria """
+    """metropolis acceptance criteria"""
     with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
+        warnings.simplefilter("ignore")
         return min(1, np.exp(-beta * deltaE))
 
 
@@ -878,20 +878,22 @@ def inf_generator(start, stop, step):
         yield cond(start, stop)
 
 
-def anneal(obs,
-           time,
-           D=None,
-           R=None,
-           maxiter=500,
-           niter_success=5,
-           verbose=False,
-           eps=1,
-           beta_mima=(.1, 20, .05),
-           D_mima=(.5, .05, -.005),
-           angle_mima=(90, 1, -.5),
-           switch=20,
-           random_state=None,
-           cylinder_fit=False):
+def anneal(
+    obs,
+    time,
+    D=None,
+    R=None,
+    maxiter=500,
+    niter_success=5,
+    verbose=False,
+    eps=1,
+    beta_mima=(0.1, 20, 0.05),
+    D_mima=(0.5, 0.05, -0.005),
+    angle_mima=(90, 1, -0.5),
+    switch=20,
+    random_state=None,
+    cylinder_fit=False,
+):
     """Fit a rotation diffusion tensor to a quaterion covariance with simulated
     annealing.
 
@@ -965,17 +967,18 @@ def anneal(obs,
     global_min = min_val
     global_model = model
 
-    mode = 'D'
+    mode = "D"
 
     # variables to track progress of annealing
     count = 0
     tacc = 0
     macc = 0
     for i in range(maxiter):
-        if mode == 'D':
+        if mode == "D":
             size = next(D_scale) * model.D
-            Dnew = np.sort(model.D +
-                           size * random_state.uniform(-.5, .5, size=3))[::-1]
+            Dnew = np.sort(model.D + size * random_state.uniform(-0.5, 0.5, size=3))[
+                ::-1
+            ]
             new_model = RotationTensor(Dnew, model.R)
 
             if cylinder_fit:
@@ -1001,8 +1004,8 @@ def anneal(obs,
         else:
             max_angle = np.deg2rad(next(angle_scale))
             dR = random.rotation(
-                angle=np.random.uniform(0, max_angle),
-                random_state=random_state)
+                angle=np.random.uniform(0, max_angle), random_state=random_state
+            )
             R = make_right_handed(np.dot(model.R, dR).T).T
             new_model = RotationTensor(model.D, R)
             val = chi2(obs, new_model, time)
@@ -1032,7 +1035,7 @@ def anneal(obs,
             break
 
         if (i + 1) % switch == 0:
-            mode = 'R' if mode == 'D' else 'D'
+            mode = "R" if mode == "D" else "D"
             macc = 0
 
         if verbose:
@@ -1040,9 +1043,18 @@ def anneal(obs,
             mode_acc_prop = macc / ((i + 1) % switch + 1)
             print(
                 "{:3d}: chi2={:>7.2f}, p={:.2f}, b={:^5.2f}, ta={:.2f}, ma={:.2f}, c={}, m={}, "
-                "dE={:>7.2f}".format(i, global_min,
-                                     metropolis(dE, b), b, total_acc_prop,
-                                     mode_acc_prop, count, mode, dE))
+                "dE={:>7.2f}".format(
+                    i,
+                    global_min,
+                    metropolis(dE, b),
+                    b,
+                    total_acc_prop,
+                    mode_acc_prop,
+                    count,
+                    mode,
+                    dE,
+                )
+            )
         if min_val < global_min:
             global_model = model
             global_min = min_val

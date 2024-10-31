@@ -59,16 +59,18 @@ def test_conjugate():
     assert_equal([2, -1, -1, -1], rotation.conjugate(q))
 
 
-@pytest.mark.parametrize('axis, angle', (([1, 1, 1], 90), ([0, 1, 1], 45)))
+@pytest.mark.parametrize("axis, angle", (([1, 1, 1], 90), ([0, 1, 1], 45)))
 def test_quat(axis, angle):
     q = rotation.quat(axis, angle)
     axis = np.array(axis)
     assert 1 == rotation.norm(q)
-    assert np.cos(np.radians(.5 * angle)) == q[0]
+    assert np.cos(np.radians(0.5 * angle)) == q[0]
     assert_almost_equal(
-        np.sin(np.radians(.5 * angle)) * axis / np.linalg.norm(axis), q[1:])
+        np.sin(np.radians(0.5 * angle)) * axis / np.linalg.norm(axis), q[1:]
+    )
     assert_almost_equal(
-        transformations.quaternion_about_axis(np.radians(angle), axis), q)
+        transformations.quaternion_about_axis(np.radians(angle), axis), q
+    )
 
 
 def test_mul(zero_quat, right_angle):
@@ -76,21 +78,24 @@ def test_mul(zero_quat, right_angle):
     assert_almost_equal(right_angle, rotation.mul(right_angle, zero_quat))
     assert_almost_equal(
         transformations.quaternion_multiply(right_angle, right_angle),
-        rotation.mul(right_angle, right_angle))
+        rotation.mul(right_angle, right_angle),
+    )
 
 
 def test_rotate_by(right_angle, zero_quat, vec, right_angle_mat):
     assert_almost_equal(vec, rotation.rotate_by(zero_quat, vec))
     assert_almost_equal(
-        rotation.rotate_by(right_angle, vec),
-        rotation.rotate_by(-right_angle, vec))
+        rotation.rotate_by(right_angle, vec), rotation.rotate_by(-right_angle, vec)
+    )
     assert_almost_equal(
-        np.dot(right_angle_mat, vec), rotation.rotate_by(right_angle, vec))
+        np.dot(right_angle_mat, vec), rotation.rotate_by(right_angle, vec)
+    )
 
 
 def test_inverse(right_angle):
-    assert_almost_equal([1, 0, 0, 0],
-                        rotation.mul(right_angle, rotation.inv(right_angle)))
+    assert_almost_equal(
+        [1, 0, 0, 0], rotation.mul(right_angle, rotation.inv(right_angle))
+    )
 
 
 ###################
@@ -103,7 +108,7 @@ def D():
     return np.asarray([30042854.0, 20255914.0, 21021232.0])
 
 
-@pytest.mark.parametrize('dt', (-1, 0))
+@pytest.mark.parametrize("dt", (-1, 0))
 def test_run_exception(dt):
     with pytest.raises(ValueError):
         rotation.run(D=np.ones(3), niter=10, dt=dt, random_state=42)
@@ -111,13 +116,13 @@ def test_run_exception(dt):
         rotation.run(D=np.ones(3), niter=dt, dt=1, random_state=42)
 
 
-@pytest.mark.parametrize('niter', (42, 1238))
+@pytest.mark.parametrize("niter", (42, 1238))
 def test_run_return_size(D, niter):
     r1 = rotation.run(D=D, niter=niter, dt=1e-9, random_state=42)
     assert r1.shape == (niter, 4)
 
 
-@pytest.mark.parametrize('seed', (42, 1238230))
+@pytest.mark.parametrize("seed", (42, 1238230))
 def test_run_reproducibility(D, seed):
     r1 = rotation.run(D=D, niter=10, dt=1e-9, random_state=seed)
     r2 = rotation.run(D=D, niter=10, dt=1e-9, random_state=seed)
